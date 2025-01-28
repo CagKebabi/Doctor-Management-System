@@ -24,17 +24,11 @@ import {
 
 // Form doğrulama şeması
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Kullanıcı adı en az 2 karakter olmalıdır.",
+  patientname: z.string().min(2, {
+    message: "Hasta adı en az 2 karakter olmalıdır.",
   }),
-  email: z.string().email({
-    message: "Geçerli bir email adresi giriniz.",
-  }),
-  fullName: z.string().min(2, {
-    message: "Ad Soyad en az 2 karakter olmalıdır.",
-  }),
-  role: z.string({
-    required_error: "Lütfen bir rol seçiniz.",
+  area: z.string({
+    required_error: "Lütfen bir bölge seçiniz.",
   }),
   status: z.string({
     required_error: "Lütfen bir durum seçiniz.",
@@ -48,10 +42,8 @@ export default function NewPatient() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      email: "",
-      fullName: "",
-      role: "",
+      patientname: "",
+      area: "",
       status: "active",
     },
   });
@@ -85,44 +77,12 @@ export default function NewPatient() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="patientname"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kullanıcı Adı</FormLabel>
+                  <FormLabel>Hasta Adı</FormLabel>
                   <FormControl>
-                    <Input placeholder="kullaniciadi" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Sisteme giriş için kullanıcı adı
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ornek@email.com" {...field} />
-                  </FormControl>
-                  <FormDescription>Kullanıcının email adresi</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ad Soyad</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ad Soyad" {...field} />
+                    <Input placeholder="Hasta adı" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,23 +91,23 @@ export default function NewPatient() {
 
             <FormField
               control={form.control}
-              name="role"
+              name="area"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rol</FormLabel>
+                  <FormLabel>Bölge</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Rol seçiniz" />
+                        <SelectValue placeholder="Bölge seçiniz" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">Kullanıcı</SelectItem>
-                      <SelectItem value="editor">Editör</SelectItem>
+                      <SelectItem value="ankara">Ankara</SelectItem>
+                      <SelectItem value="istanbul">Istanbul</SelectItem>
+                      <SelectItem value="izmir">Izmir</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

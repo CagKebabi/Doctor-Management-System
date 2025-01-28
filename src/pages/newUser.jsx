@@ -30,9 +30,6 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Geçerli bir email adresi giriniz.",
   }),
-  fullName: z.string().min(2, {
-    message: "Ad Soyad en az 2 karakter olmalıdır.",
-  }),
   role: z.string({
     required_error: "Lütfen bir rol seçiniz.",
   }),
@@ -110,20 +107,6 @@ export default function NewUser() {
                     <Input placeholder="ornek@email.com" {...field} />
                   </FormControl>
                   <FormDescription>Kullanıcının email adresi</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ad Soyad</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ad Soyad" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

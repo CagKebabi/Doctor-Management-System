@@ -82,6 +82,16 @@ const data = [
 ];
 
 export default function PatientList() {
+  //Edit İşlemleri
+  const handleRowSave = async (editedData) => {
+    // Handle saving the edited data
+    try {
+      // Make API call or update data
+      console.log('Saving:', editedData);
+    } catch (error) {
+      console.error('Error saving:', error);
+    }
+  };
   return (
     <>
       <TableStatistic />
@@ -89,6 +99,7 @@ export default function PatientList() {
         columns={columns}
         data={data}
         filterColumn="name"
+        onRowSave={handleRowSave}
       />
     </>
   );

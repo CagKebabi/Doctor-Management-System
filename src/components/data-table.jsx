@@ -29,9 +29,38 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export function DataTable({ columns, data, filterColumn = "name" }) {
+import { Edit, Save, X } from "lucide-react";
+
+export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
+  const [editingRow, setEditingRow] = useState(null);
+  const [editedData, setEditedData] = useState({});
+
+  const handleEditClick = (row) => {
+    setEditingRow(row.id);
+    setEditedData(row.original);
+  };
+
+  const handleSaveClick = async (row) => {
+    if (onRowSave) {
+      await onRowSave(editedData);
+    }
+    setEditingRow(null);
+    setEditedData({});
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRow(null);
+    setEditedData({});
+  };
+
+  const handleCellEdit = (columnId, value) => {
+    setEditedData((prev) => ({
+      ...prev,
+      [columnId]: value,
+    }));
+  };
 
   const table = useReactTable({
     data,
@@ -77,6 +106,7 @@ export function DataTable({ columns, data, filterColumn = "name" }) {
                     </TableHead>
                   );
                 })}
+                <TableHead>İşlemler</TableHead>
               </TableRow>
             ))}
           </TableHeader>
@@ -89,18 +119,56 @@ export function DataTable({ columns, data, filterColumn = "name" }) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                      {editingRow === row.id ? (
+                        <Input
+                          value={editedData[cell.column.id] || ""}
+                          onChange={(e) =>
+                            handleCellEdit(cell.column.id, e.target.value)
+                          }
+                          className="w-full"
+                        />
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
                       )}
                     </TableCell>
                   ))}
+                  <TableCell>
+                    {editingRow === row.id ? (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleSaveClick(row)}
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleCancelEdit}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditClick(row)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
                   Sonuç bulunamadı.
