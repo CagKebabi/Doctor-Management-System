@@ -6,6 +6,12 @@ import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotificationsPage from "@/pages/notifications";
 import NewPatient from "./pages/newPatient";
+import AreaList from "./pages/areaList";
+import NewNotification from "./pages/newNotification";
+import NewArea from "./pages/newArea";
+import UserList from "./pages/userList";
+import PatientList from "./pages/patientList";
+import NewBanner from "./pages/newBanner";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -28,6 +34,30 @@ const router = createBrowserRouter([
       {
         path: "notifications",
         element: <NotificationsPage />,
+      },
+      {
+        path: "area-list",
+        element: <AreaList />,
+      },
+      {
+        path: "new-notification",
+        element: <NewNotification />,
+      },
+      {
+        path: "new-area",
+        element: <NewArea />,
+      },
+      {
+        path: "user-list",
+        element: <UserList />,
+      },
+      {
+        path: "patient-list",
+        element: <PatientList />,
+      },
+      {
+        path: "new-banner",
+        element: <NewBanner />,
       }
     ],
   },

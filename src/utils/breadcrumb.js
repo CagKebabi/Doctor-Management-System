@@ -8,6 +8,12 @@ const routeMap = {
   '/patients': { title: 'Hasta Listesi', parent: '/' },
   '/regions': { title: 'Bölge Listesi', parent: '/' },
   '/announcements': { title: 'Duyuru Listesi', parent: '/' },
+  '/area-list': { title: 'Bölge Listesi', parent: '/' },
+  '/user-list': { title: 'Kullanıcı Listesi', parent: '/' },
+  '/patient-list': { title: 'Hasta Listesi', parent: '/' },
+  '/new-banner': { title: 'Yeni Banner', parent: '/' },
+  '/new-notification': { title: 'Yeni Duyuru', parent: '/' },
+  '/new-area': { title: 'Yeni Bölge', parent: '/' }
 };
 
 export function generateBreadcrumbs(pathname) {

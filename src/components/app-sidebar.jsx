@@ -31,11 +31,15 @@ const data = {
         },
         {
           title: "Yeni Bölge",
-          url: "#",
+          url: "/new-area",
         },
         {
           title: "Yeni Duyuru",
-          url: "#",
+          url: "/new-notification",
+        },
+        {
+          title: "Yeni Banner",
+          url: "/new-banner",
         },
       ],
     },
@@ -45,15 +49,15 @@ const data = {
       items: [
         {
           title: "Kullanıcı Listesi",
-          url: "#",
+          url: "/user-list",
         },
         {
           title: "Hasta Kayıt Listesi",
-          url: "#",
+          url: "/patient-list",
         },
         {
           title: "Bölge Listesi",
-          url: "#",
+          url: "/area-list",
         },
       ],
     },
