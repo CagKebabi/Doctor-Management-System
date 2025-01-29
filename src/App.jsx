@@ -12,6 +12,7 @@ import NewArea from "./pages/newArea";
 import UserList from "./pages/userList";
 import PatientList from "./pages/patientList";
 import NewBanner from "./pages/newBanner";
+import TestComponent from "./pages/testComponent";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -58,7 +59,11 @@ const router = createBrowserRouter([
       {
         path: "new-banner",
         element: <NewBanner />,
-      }
+      },
+      {
+        path: "test-component",
+        element: <TestComponent />,
+      },
     ],
   },
   {
