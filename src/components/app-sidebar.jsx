@@ -88,7 +88,6 @@ export function AppSidebar({ ...props }) {
             <span className="text-xs text-gray-500 dark:text-gray-400">Doktor Yönetim Sistemi</span>
           </div>
         </Link>
-        <SearchForm />
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
