@@ -92,7 +92,7 @@ export default function NewNotification() {
         values.region
       );
       console.log('Duyuru oluşturuldu:', response);
-      navigate("/notifications");
+      //navigate("/notifications");
     } catch (error) {
       console.error("Duyuru oluşturma hatası:", error);
       alert(error.message);

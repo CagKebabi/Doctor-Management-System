@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { notificationService } from "@/services/notification.service";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 10;
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
