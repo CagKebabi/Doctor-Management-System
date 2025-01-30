@@ -13,6 +13,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { authService } from "../services/auth.service";
 
 // This is sample data.
 const data = {
@@ -65,6 +71,34 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+  const [userEmail, setUserEmail] = useState("");
+  const [formData, setFormData] = useState({
+    refresh: localStorage.getItem('refreshToken'),
+  });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    if (!authService.isAuthenticated()) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Kullanıcı giriş yapmamışsa null döndür (sayfa içeriğini gösterme)
+  if (!authService.isAuthenticated()) {
+    return null;
+  }
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      setUserEmail(email);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -89,7 +123,8 @@ export function AppSidebar({ ...props }) {
           </div>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="justify-between">
+        <div>
         {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
@@ -107,6 +142,23 @@ export function AppSidebar({ ...props }) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        </div>
+        <Card className="mx-4 mb-4">
+        <CardContent className="p-4 flex flex-col gap-2">
+          <div className="text-sm text-muted-foreground truncate">
+            {userEmail}
+          </div>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleLogout}
+            className="w-full"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Çıkış Yap
+          </Button>
+        </CardContent>
+      </Card>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

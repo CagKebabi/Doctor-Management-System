@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { areaService } from '@/services/area.service';
 
 const areaData = [
   {
@@ -58,14 +59,27 @@ const areaData = [
 ];
 
 const AreaList = () => {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedArea, setSelectedArea] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    doctorCount: 0,
-    hospitals: 0,
-    activeStatus: true,
+  const [data, setData] = useState([]);
+  async function getUsers() {
+    try {
+      const areas = await areaService.getAreas();
+      console.log('Bölge Listesi:', areas);
+      setData(areas);
+    } catch (error) {
+      console.error('Hata:', error);
+    }
+  } 
+  useEffect(() => {
+    getUsers();
+    }, []);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [selectedArea, setSelectedArea] = useState(null);
+    const [editForm, setEditForm] = useState({
+      name: "",
+      doctorCount: 0,
+      hospitals: 0,
+      activeStatus: true,
   });
 
   const handleEdit = (area) => {
@@ -100,13 +114,13 @@ const AreaList = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Doktor Bölgeleri</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {areaData.map((area) => (
+        {data.map((area) => (
           <Card key={area.id} className="w-full">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-xl">{area.name}</CardTitle>
-                  <CardDescription>Bölge ID: {area.id}</CardDescription>
+                  <CardDescription>{area.description}</CardDescription>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -133,15 +147,27 @@ const AreaList = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
+              <p className="text-sm">
+                  <span className="font-semibold">Oluşturulma Tarihi:</span>{" "}
+                  {new Date(area.created_at).toLocaleString()}
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Oluşturan Kişi:</span>{" "}
+                  {area.created_by}
+                </p>
+                <p className="text-sm">
+                  <span className="font-semibold">Admin Sayısı:</span>{" "}
+                  {area.admins.length}
+                </p>
                 <p className="text-sm">
                   <span className="font-semibold">Doktor Sayısı:</span>{" "}
-                  {area.doctorCount}
+                  {area.doctors.length}
                 </p>
                 <p className="text-sm">
-                  <span className="font-semibold">Hastane Sayısı:</span>{" "}
-                  {area.hospitals}
+                  <span className="font-semibold">Son Güncelleme:</span>{" "}
+                  {new Date(area.updated_at).toLocaleString()}
                 </p>
-                <p className="text-sm">
+                {/* <p className="text-sm">
                   <span className="font-semibold">Durum:</span>{" "}
                   <span
                     className={`px-2 py-1 rounded-full text-xs ${
@@ -152,7 +178,7 @@ const AreaList = () => {
                   >
                     {area.activeStatus ? "Aktif" : "Pasif"}
                   </span>
-                </p>
+                </p> */}
               </div>
             </CardContent>
           </Card>

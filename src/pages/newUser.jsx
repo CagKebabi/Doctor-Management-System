@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,50 +20,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { userService } from "@/services/user.service";
+import { useNavigate } from "react-router-dom";
 
 // Form doğrulama şeması
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Kullanıcı adı en az 2 karakter olmalıdır.",
-  }),
   email: z.string().email({
     message: "Geçerli bir email adresi giriniz.",
+  }),
+  password: z.string().min(6, {
+    message: "Şifre en az 6 karakter olmalıdır.",
   }),
   role: z.string({
     required_error: "Lütfen bir rol seçiniz.",
   }),
-  status: z.string({
-    required_error: "Lütfen bir durum seçiniz.",
-  }),
 });
 
 export default function NewUser() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form tanımlaması
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
       email: "",
-      fullName: "",
+      password: "",
       role: "",
-      status: "active",
     },
   });
 
   // Form gönderme işlemi
   async function onSubmit(values) {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      // API çağrısı burada yapılacak
-      console.log(values);
-      // Başarılı kayıt mesajı göster
+      console.log('Form değerleri:', values);
+      const response = await userService.createNewUser(
+        values.email,
+        values.password,
+        values.role
+      );
+      console.log('Kullanıcı oluşturuldu:', response);
+      navigate("/user-list");
     } catch (error) {
-      console.error("Kayıt hatası:", error);
-      // Hata mesajı göster
+      console.error("Kullanıcı oluşturma hatası:", error);
+      alert(error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -72,9 +74,9 @@ export default function NewUser() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Yeni Kullanıcı Ekle</h3>
+          <h3 className="text-lg font-medium">Yeni Kullanıcı Oluştur</h3>
           <p className="text-sm text-muted-foreground">
-            Sisteme yeni bir kullanıcı eklemek için formu doldurun.
+            Sisteme yeni bir kullanıcı ekleyin
           </p>
         </div>
 
@@ -82,16 +84,19 @@ export default function NewUser() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kullanıcı Adı</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="kullaniciadi" {...field} />
+                    <Input 
+                      type="email"
+                      placeholder="ornek@email.com"
+                      autoComplete="new-email"
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    Sisteme giriş için kullanıcı adı
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -99,14 +104,19 @@ export default function NewUser() {
 
             <FormField
               control={form.control}
-              name="email"
+              name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Şifre</FormLabel>
                   <FormControl>
-                    <Input placeholder="ornek@email.com" {...field} />
+                    <Input 
+                      type="password"
+                      placeholder="******"
+                      autoComplete="new-password"
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
-                  <FormDescription>Kullanıcının email adresi</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -119,8 +129,9 @@ export default function NewUser() {
                 <FormItem>
                   <FormLabel>Rol</FormLabel>
                   <Select
+                    disabled={isLoading}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -129,8 +140,8 @@ export default function NewUser() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">Kullanıcı</SelectItem>
-                      <SelectItem value="editor">Editör</SelectItem>
+                      <SelectItem value="doctor">Doktor</SelectItem>
+                      <SelectItem value="secretary">Sekreter</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -138,34 +149,8 @@ export default function NewUser() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Durum</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Durum seçiniz" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="inactive">Pasif</SelectItem>
-                      <SelectItem value="pending">Beklemede</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" disabled={loading}>
-              {loading ? "Kaydediliyor..." : "Kaydet"}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Kaydediliyor..." : "Kaydet"}
             </Button>
           </form>
         </Form>

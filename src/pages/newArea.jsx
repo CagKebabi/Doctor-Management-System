@@ -14,52 +14,48 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { areaService } from "@/services/area.service";
+import { useNavigate } from "react-router-dom";
 
 // Form doğrulama şeması
 const formSchema = z.object({
-  notificationTitle: z.string().min(2, {
-    message: "Duyuru başlığı en az 2 karakter olmalıdır.",
+  name: z.string().min(2, {
+    message: "Bölge adı en az 2 karakter olmalıdır.",
   }),
-  notificationText: z.string().min(2, {
-    message: "Duyuru metni en az 2 karakter olmalıdır.",
-  }),
-  status: z.string({
-    required_error: "Lütfen bir durum seçiniz.",
+  description: z.string().min(2, {
+    message: "Bölge açıklaması en az 2 karakter olmalıdır.",
   }),
 });
 
 export default function NewArea() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form tanımlaması
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-        notificationTitle: "",
-        notificationText: "",
-        status: "active",
+        name: "",
+        description: "",
     },
   });
 
   // Form gönderme işlemi
   async function onSubmit(values) {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      // API çağrısı burada yapılacak
-      console.log(values);
-      // Başarılı kayıt mesajı göster
+      console.log('Form değerleri:', values);
+      const response = await areaService.createNewArea(
+        values.name,
+        values.description
+      );
+      console.log('Bölge oluşturuldu:', response);
+      navigate("/area-list");
     } catch (error) {
-      console.error("Kayıt hatası:", error);
-      // Hata mesajı göster
+      console.error("Bölge oluşturma hatası:", error);
+      alert(error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -77,7 +73,7 @@ export default function NewArea() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="notificationTitle"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bölge Adı</FormLabel>
@@ -92,7 +88,7 @@ export default function NewArea() {
 
             <FormField
               control={form.control}
-              name="notificationText"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bölge Açıklaması</FormLabel>
@@ -105,34 +101,8 @@ export default function NewArea() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Durum</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Durum seçiniz" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="inactive">Pasif</SelectItem>
-                      <SelectItem value="pending">Beklemede</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" disabled={loading}>
-              {loading ? "Kaydediliyor..." : "Kaydet"}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Kaydediliyor..." : "Kaydet"}
             </Button>
           </form>
         </Form>

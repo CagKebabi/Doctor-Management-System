@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,45 +20,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Textarea } from "@/components/ui/textarea";
+import { useNavigate } from "react-router-dom";
+import { notificationService } from "@/services/notification.service";
+import { areaService } from "@/services/area.service";
 // Form doğrulama şeması
 const formSchema = z.object({
-  notificationTitle: z.string().min(2, {
-    message: "Duyuru başlığı en az 2 karakter olmalıdır.",
+  text: z.string().min(10, {
+    message: "Duyuru metni en az 10 karakter olmalıdır.",
   }),
-  notificationText: z.string().min(2, {
-    message: "Duyuru metni en az 2 karakter olmalıdır.",
+  targetRole: z.string({
+    required_error: "Hedef rol seçiniz.",
   }),
-  status: z.string({
-    required_error: "Lütfen bir durum seçiniz.",
+  region: z.string({
+    required_error: "Bölge seçiniz.",
   }),
 });
 
+// Rol seçenekleri
+const roleOptions = [
+  { value: "all", label: "Tümü" },
+  { value: "admin", label: "Admin" },
+  { value: "doctor", label: "Doktor" },
+];
+
+// Bölge seçenekleri
+const regionOptions = [
+  { value: "all", label: "Tüm Bölgeler" },
+  { value: "istanbul", label: "İstanbul" },
+  { value: "ankara", label: "Ankara" },
+  { value: "izmir", label: "İzmir" },
+  { value: "bursa", label: "Bursa" },
+];
+
 export default function NewNotification() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [areas, setAreas] = useState([]);
+
+  // Bölge listesi alınıyor
+  useEffect(() => {
+    async function getAreas() {
+      try {
+        const areas = await areaService.getAreas();
+        setAreas(areas);
+      } catch (error) {
+        console.error('Hata:', error);
+      }
+    }
+    getAreas();
+  }, []);
 
   // Form tanımlaması
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      notificationTitle: "",
-      notificationText: "",
-      status: "active",
+      text: "",
+      targetRole: "",
+      region: "",
     },
   });
 
   // Form gönderme işlemi
   async function onSubmit(values) {
-    setLoading(true);
+    setIsLoading(true);
     try {
-      // API çağrısı burada yapılacak
-      console.log(values);
-      // Başarılı kayıt mesajı göster
+      console.log('Form değerleri:', values);
+      const response = await notificationService.createNewNotification(
+        values.text,
+        values.targetRole,
+        values.region
+      );
+      console.log('Duyuru oluşturuldu:', response);
+      navigate("/notifications");
     } catch (error) {
-      console.error("Kayıt hatası:", error);
-      // Hata mesajı göster
+      console.error("Duyuru oluşturma hatası:", error);
+      alert(error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -67,9 +105,9 @@ export default function NewNotification() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Yeni Duyuru Ekle</h3>
+          <h3 className="text-lg font-medium">Yeni Duyuru Oluştur</h3>
           <p className="text-sm text-muted-foreground">
-            Sisteme yeni bir duyuru eklemek için formu doldurun.
+            Sisteme yeni bir duyuru ekleyin
           </p>
         </div>
 
@@ -77,29 +115,21 @@ export default function NewNotification() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="notificationTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Duyuru Başlığı</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Duyuru Başlığı" {...field} />
-                  </FormControl>
-                  <FormDescription>Duyurunun başlığı</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notificationText"
+              name="text"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Duyuru Metni</FormLabel>
                   <FormControl>
-                    <Input placeholder="Duyuru Metni" {...field} />
+                    <Textarea 
+                      placeholder="Duyuru metnini giriniz..."
+                      className="min-h-[100px]"
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
-                  <FormDescription>Duyurunun metni</FormDescription>
+                  <FormDescription>
+                    Duyuru metni en az 10 karakter olmalıdır.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -107,32 +137,70 @@ export default function NewNotification() {
 
             <FormField
               control={form.control}
-              name="status"
+              name="targetRole"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Durum</FormLabel>
+                  <FormLabel>Hedef Rol</FormLabel>
                   <Select
+                    disabled={isLoading}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Durum seçiniz" />
+                        <SelectValue placeholder="Hedef rol seçiniz" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="inactive">Pasif</SelectItem>
-                      <SelectItem value="pending">Beklemede</SelectItem>
+                      {roleOptions.map((role) => (
+                        <SelectItem key={role.value} value={role.value}>
+                          {role.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <FormDescription>
+                    Duyuruyu kimlerin görebileceğini seçin
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Kaydediliyor..." : "Kaydet"}
+            <FormField
+              control={form.control}
+              name="region"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bölge</FormLabel>
+                  <Select
+                    disabled={isLoading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bölge seçiniz" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {areas.map((area) => (
+                        <SelectItem key={area.id} value={area.id}>
+                          {area.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Duyurunun hangi bölgede görüneceğini seçin
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Kaydediliyor..." : "Duyuru Oluştur"}
             </Button>
           </form>
         </Form>

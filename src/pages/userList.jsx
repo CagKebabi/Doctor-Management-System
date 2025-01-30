@@ -1,12 +1,11 @@
 import { DataTable } from "@/components/data-table";
 import { TableStatistic } from "@/components/table-statistic";
 import NewUser from "./newUser";
+import { useEffect, useState } from "react";
+import { userService } from "../services/user.service";
+
 
 const columns = [
-  {
-    accessorKey: "name",
-    header: "İsim",
-  },
   {
     accessorKey: "email",
     header: "E-posta",
@@ -18,70 +17,34 @@ const columns = [
 ];
 
 // Örnek data
-const data = [
-  {
-    name: "Ahmet Şenses",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Önrek",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-];
+// const data = [
+//   {
+//     name: "Ahmet Şenses",
+//     email: "ahmet@ornek.com",
+//     role: "Admin",
+//   },
+//   {
+//     name: "Ahmet Yılmaz",
+//     email: "ahmet@ornek.com",
+//     role: "Admin",
+//   },
+// ];
 
 export default function UserList() {
+  const [data, setData] = useState([]);
+  async function getUsers() {
+    try {
+      const users = await userService.getUsers();
+      console.log('Kullanıcılar:', users);
+      setData(users);
+    } catch (error) {
+      console.error('Hata:', error);
+    }
+  } 
+  useEffect(() => {
+    getUsers();
+  }, []);
+
   //Edit İşlemleri
   const handleRowSave = async (editedData) => {
     // Handle saving the edited data
@@ -98,7 +61,7 @@ export default function UserList() {
       <DataTable
         columns={columns}
         data={data}
-        filterColumn="name"
+        filterColumn="email"
         onRowSave={handleRowSave}
       />
     </>

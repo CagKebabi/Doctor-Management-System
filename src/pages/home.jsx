@@ -1,6 +1,8 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/data-table";
 import { TableStatistic } from "@/components/table-statistic";
-import NewUser from "./newUser";
+import { authService } from "../services/auth.service";
 
 const columns = [
   {
@@ -82,6 +84,20 @@ const data = [
 ];
 
 export default function Page() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    if (!authService.isAuthenticated()) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Kullanıcı giriş yapmamışsa null döndür (sayfa içeriğini gösterme)
+  if (!authService.isAuthenticated()) {
+    return null;
+  }
+
   return (
     <>
       <TableStatistic />

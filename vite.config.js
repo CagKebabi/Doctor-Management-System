@@ -6,6 +6,14 @@ import path from "path"
 export default defineConfig({
   plugins: [react()],
   base: '',
+  server: {
+    proxy: {
+      '/users': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

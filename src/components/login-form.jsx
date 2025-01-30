@@ -1,17 +1,62 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "./ui/checkbox";
 import { Link } from "react-router-dom";
+import { authService } from "../services/auth.service";
 
 export function LoginForm({ className, ...props }) {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await authService.login(formData.email, formData.password);
+      console.log('Login başarılı:', response);
+      
+      if (response.access && response.refresh) {
+        localStorage.setItem('token', response.access);
+        localStorage.setItem('refreshToken', response.refresh);
+        localStorage.setItem('userEmail', formData.email);
+        
+        console.log("Access Token:", localStorage.getItem('token'));
+        console.log("Refresh Token:", localStorage.getItem('refreshToken'));
+        
+        navigate("/");
+      } else {
+        throw new Error('Token alınamadı');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
         <CardContent className="grid p-0">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center gap-1.5">
                 <h1 className="text-2xl font-bold">Hoşgeldiniz</h1>
@@ -23,54 +68,46 @@ export function LoginForm({ className, ...props }) {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  // autoComplete="email"
+                  autoComplete="off"
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Şifre</Label>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Şifrenizi mi unuttunuz?
-                  </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  // autoComplete="current-password"
+                  autoComplete="off"
+                />
               </div>
-              <div className="items-top flex space-x-2">
-                <Checkbox id="terms1" />
-                <div className="grid gap-1.5 leading-none">
-                  <label
-                    htmlFor="terms1"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Beni Hatırla
-                  </label>
-                </div>
-              </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
               </Button>
               <div className="text-center text-sm">
-                Bir hesabınız yok mu?
+                Bir hesabınız yok mu?{" "}
                 <Link to="/register" className="underline underline-offset-4">
                   Kayıt Ol
                 </Link>
-                {/* <a href="#" className="underline underline-offset-4">
-                  Kayıt Ol
-                </a> */}
               </div>
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
     </div>
   );
 }
