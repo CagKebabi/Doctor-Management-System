@@ -30,10 +30,10 @@ const formSchema = z.object({
     message: "Duyuru metni en az 10 karakter olmalıdır.",
   }),
   targetRole: z.string({
-    required_error: "Hedef rol seçiniz.",
+    message: "Hedef rol seçiniz.",
   }),
   region: z.string({
-    required_error: "Bölge seçiniz.",
+    message: "Bölge seçiniz.",
   }),
 });
 
@@ -92,7 +92,7 @@ export default function NewNotification() {
         values.region
       );
       console.log('Duyuru oluşturuldu:', response);
-      //navigate("/notifications");
+      navigate("/notifications");
     } catch (error) {
       console.error("Duyuru oluşturma hatası:", error);
       alert(error.message);

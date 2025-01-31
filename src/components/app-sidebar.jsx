@@ -65,6 +65,10 @@ const data = {
           title: "Bölge Listesi",
           url: "/area-list",
         },
+        {
+          title: "Banner Listesi",
+          url: "/banner-list",
+        }
       ],
     },
   ],

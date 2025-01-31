@@ -26,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { areaService } from '@/services/area.service';
+import { Loader2 } from 'lucide-react';
 
 const areaData = [
   {
@@ -60,17 +61,22 @@ const areaData = [
 
 const AreaList = () => {
   const [data, setData] = useState([]);
-  async function getUsers() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function getAreas() {
+    setIsLoading(true);
     try {
       const areas = await areaService.getAreas();
       console.log('Bölge Listesi:', areas);
       setData(areas);
     } catch (error) {
       console.error('Hata:', error);
+    } finally {
+      setIsLoading(false);
     }
   } 
   useEffect(() => {
-    getUsers();
+    getAreas();
     }, []);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -114,75 +120,83 @@ const AreaList = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Doktor Bölgeleri</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.map((area) => (
-          <Card key={area.id} className="w-full">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl">{area.name}</CardTitle>
-                  <CardDescription>{area.description}</CardDescription>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleEdit(area)}>
-                      Düzenle
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Detaylar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => handleDelete(area)}
-                      className="text-red-600"
-                    >
-                      Sil
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-              <p className="text-sm">
-                  <span className="font-semibold">Oluşturulma Tarihi:</span>{" "}
-                  {new Date(area.created_at).toLocaleString()}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Oluşturan Kişi:</span>{" "}
-                  {area.created_by}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Admin Sayısı:</span>{" "}
-                  {area.admins.length}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Doktor Sayısı:</span>{" "}
-                  {area.doctors.length}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Son Güncelleme:</span>{" "}
-                  {new Date(area.updated_at).toLocaleString()}
-                </p>
-                {/* <p className="text-sm">
-                  <span className="font-semibold">Durum:</span>{" "}
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      area.activeStatus
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {area.activeStatus ? "Aktif" : "Pasif"}
-                  </span>
-                </p> */}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {
+          isLoading ? (
+            <div className="flex justify-center items-center w-lg absolute">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-500 mx-auto" />
+            </div>
+          ) : (
+            data.map((area) => (
+              <Card key={area.id} className="w-full">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl">{area.name}</CardTitle>
+                      <CardDescription>{area.description}</CardDescription>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(area)}>
+                          Düzenle
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          Detaylar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDelete(area)}
+                          className="text-red-600"
+                        >
+                          Sil
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                  <p className="text-sm">
+                      <span className="font-semibold">Oluşturulma Tarihi:</span>{" "}
+                      {new Date(area.created_at).toLocaleString()}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Oluşturan Kişi:</span>{" "}
+                      {area.created_by}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Admin Sayısı:</span>{" "}
+                      {area.admins.length}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Doktor Sayısı:</span>{" "}
+                      {area.doctors.length}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-semibold">Son Güncelleme:</span>{" "}
+                      {new Date(area.updated_at).toLocaleString()}
+                    </p>
+                    {/* <p className="text-sm">
+                      <span className="font-semibold">Durum:</span>{" "}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          area.activeStatus
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {area.activeStatus ? "Aktif" : "Pasif"}
+                      </span>
+                    </p> */}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )
+        }
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

@@ -13,7 +13,8 @@ const routeMap = {
   '/patient-list': { title: 'Hasta Listesi', parent: '/' },
   '/new-banner': { title: 'Yeni Banner', parent: '/' },
   '/new-notification': { title: 'Yeni Duyuru', parent: '/' },
-  '/new-area': { title: 'Yeni Bölge', parent: '/' }
+  '/new-area': { title: 'Yeni Bölge', parent: '/' },
+  '/banner-list': { title: 'Banner Listesi', parent: '/' }
 };
 
 export function generateBreadcrumbs(pathname) {
