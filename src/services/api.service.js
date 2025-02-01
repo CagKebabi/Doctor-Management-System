@@ -27,13 +27,35 @@ class ApiService {
     const requestHeaders = headers || this.getHeaders();
     
     // Eğer data FormData ise, Content-Type header'ını siliyoruz
-    // çünkü browser otomatik olarak boundary ile birlikte ekleyecek
+    // Çünkü browser otomatik olarak boundary ile birlikte ekleyecek
     if (data instanceof FormData) {
       delete requestHeaders['Content-Type'];
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
+      headers: requestHeaders,
+      body: data instanceof FormData ? data : JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API isteği başarısız: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async put(endpoint, data, headers = null) {
+    const requestHeaders = headers || this.getHeaders();
+    
+    // Eğer data FormData ise, Content-Type header'ını siliyoruz
+    // Çünkü browser otomatik olarak boundary ile birlikte ekleyecek
+    if (data instanceof FormData) {
+      delete requestHeaders['Content-Type'];
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PUT',
       headers: requestHeaders,
       body: data instanceof FormData ? data : JSON.stringify(data),
     });

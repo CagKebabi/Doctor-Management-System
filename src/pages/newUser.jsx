@@ -28,8 +28,8 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Geçerli bir email adresi giriniz.",
   }),
-  password: z.string().min(6, {
-    message: "Şifre en az 6 karakter olmalıdır.",
+  password: z.string().min(8, {
+    message: "Şifre en az 8 karakter olmalıdır.",
   }),
   role: z.string({
     required_error: "Lütfen bir rol seçiniz.",

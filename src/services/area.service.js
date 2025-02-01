@@ -51,6 +51,27 @@ export class AreaService {
             throw error;
         }
     }
+    async updateArea(formData, areaId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`
+                // Content-Type header'ı FormData ile otomatik ayarlanacak
+            };
+            
+            const response = await apiService.put(
+                ENDPOINTS.UPDATE_AREA(areaId),
+                formData,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölge editleme hatası:', error);
+            throw error;
+        }
+    }
 }
 
 export const areaService = new AreaService();

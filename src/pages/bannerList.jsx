@@ -150,8 +150,13 @@ export default function BannersPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Banner Listesi</h1>
+        </div>
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="h-6 w-6 animate-spin text-gray-500 mx-auto" />
+        </div>
       </div>
     );
   }

@@ -15,6 +15,7 @@ export const ENDPOINTS = {
   // Area endpoints
   CREATE_AREA: '/regions/create/',
   GET_AREAS: '/regions/',
+  UPDATE_AREA: (id) => `/regions/${id}/update/`,
   // Popup endpoints
   CREATE_POPUP: '/popups/',
   GET_POPUPS: '/popups/',

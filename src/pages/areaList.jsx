@@ -61,7 +61,19 @@ const areaData = [
 
 const AreaList = () => {
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); 
+  const [error, setError] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [selectedArea, setSelectedArea] = useState(null);
+    const [editForm, setEditForm] = useState({
+      name: "",
+      description: "",
+      // hospitals: 0,
+      // activeStatus: true,
+  });
+  const [editFormId, setEditFormId] = useState("")
+  const [isEditFormLoading, setIsEditFormLoading] = useState(false);
 
   async function getAreas() {
     setIsLoading(true);
@@ -70,6 +82,7 @@ const AreaList = () => {
       console.log('Bölge Listesi:', areas);
       setData(areas);
     } catch (error) {
+      setError(err.message);
       console.error('Hata:', error);
     } finally {
       setIsLoading(false);
@@ -77,25 +90,17 @@ const AreaList = () => {
   } 
   useEffect(() => {
     getAreas();
-    }, []);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [selectedArea, setSelectedArea] = useState(null);
-    const [editForm, setEditForm] = useState({
-      name: "",
-      doctorCount: 0,
-      hospitals: 0,
-      activeStatus: true,
-  });
+  }, []);
 
   const handleEdit = (area) => {
     setSelectedArea(area);
     setEditForm({
       name: area.name,
-      doctorCount: area.doctorCount,
-      hospitals: area.hospitals,
-      activeStatus: area.activeStatus,
+      description: area.description,
+      // hospitals: area.hospitals,
+      // activeStatus: area.activeStatus,
     });
+    setEditFormId(area.id);
     setIsEditDialogOpen(true);
   };
 
@@ -110,22 +115,55 @@ const AreaList = () => {
     setIsDeleteDialogOpen(false);
   };
 
-  const handleSaveEdit = () => {
-    // Burada API çağrısı yapılacak
-    console.log("Kaydedilen değerler:", { id: selectedArea.id, ...editForm });
-    setIsEditDialogOpen(false);
+  const handleSaveEdit = async () => {
+    setIsEditFormLoading(true)
+    try {
+      const formData = new FormData();
+      formData.append('name', editForm.name);
+      formData.append('description', editForm.description);
+      
+      await areaService.updateArea(formData, editFormId);
+      setIsEditDialogOpen(false);
+      setIsEditFormLoading(false);
+      // Güncellemeden sonra listeyi yenile
+      getAreas();
+    } catch (error) {
+      console.error('Bölge güncelleme hatası:', error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Bölge Listesi</h1>
+        </div>
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="h-6 w-6 animate-spin text-gray-500 mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500">
+        Hata: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Doktor Bölgeleri</h1>
+      <h1 className="text-3xl font-bold mb-6">Bölge Listesi</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
-          isLoading ? (
-            <div className="flex justify-center items-center w-lg absolute">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-500 mx-auto" />
-            </div>
-          ) : (
+          // isLoading ? (
+          //   <div className="flex justify-center items-center w-lg absolute">
+          //     <Loader2 className="h-6 w-6 animate-spin text-gray-500 mx-auto" />
+          //   </div>
+          // ) : 
+          (
             data.map((area) => (
               <Card key={area.id} className="w-full">
                 <CardHeader>
@@ -222,62 +260,26 @@ const AreaList = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="doctorCount" className="text-right">
-                Doktor Sayısı
+              <Label htmlFor="description" className="text-right">
+                Bölge Açıklaması
               </Label>
               <Input
-                id="doctorCount"
-                type="number"
-                value={editForm.doctorCount}
+                id="description"
+                value={editForm.description}
                 onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    doctorCount: parseInt(e.target.value),
-                  })
+                  setEditForm({ ...editForm, description: e.target.value })
                 }
                 className="col-span-3"
               />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="hospitals" className="text-right">
-                Hastane Sayısı
-              </Label>
-              <Input
-                id="hospitals"
-                type="number"
-                value={editForm.hospitals}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    hospitals: parseInt(e.target.value),
-                  })
-                }
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Durum
-              </Label>
-              <div className="flex items-center space-x-2 col-span-3">
-                <Switch
-                  id="status"
-                  checked={editForm.activeStatus}
-                  onCheckedChange={(checked) =>
-                    setEditForm({ ...editForm, activeStatus: checked })
-                  }
-                />
-                <Label htmlFor="status">
-                  {editForm.activeStatus ? "Aktif" : "Pasif"}
-                </Label>
-              </div>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               İptal
             </Button>
-            <Button onClick={handleSaveEdit}>Kaydet</Button>
+            <Button onClick={handleSaveEdit} disabled={isEditFormLoading}>
+              {isEditFormLoading ? "Kaydediliyor..." : "Kaydet"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
