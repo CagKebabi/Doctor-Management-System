@@ -74,6 +74,7 @@ const AreaList = () => {
   });
   const [editFormId, setEditFormId] = useState("")
   const [isEditFormLoading, setIsEditFormLoading] = useState(false);
+  const [isDeleteFormLoading, setIsDeleteFormLoading] = useState(false)
 
   async function getAreas() {
     setIsLoading(true);
@@ -106,12 +107,22 @@ const AreaList = () => {
 
   const handleDelete = (area) => {
     setSelectedArea(area);
+    setEditFormId(area.id);
     setIsDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    // Burada API çağrısı yapılacak
-    console.log("Silinen bölge ID:", selectedArea.id);
+  const handleConfirmDelete = async() => {
+    setIsDeleteFormLoading(true)
+    try {
+      await areaService.deleteArea(editFormId);
+      setIsDeleteDialogOpen(false);
+      setIsDeleteFormLoading(false);
+      // Güncellemeden sonra listeyi yenile
+      getAreas();
+    } catch (error) {
+      console.error('Bölge silme hatası:', error);
+    }
+    console.log("Silinen bölge ID:", editFormId);
     setIsDeleteDialogOpen(false);
   };
 
@@ -296,8 +307,8 @@ const AreaList = () => {
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               İptal
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
-              Sil
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={isDeleteFormLoading}>
+              {isDeleteFormLoading ? "Siliniyor..." : "Sil"}
             </Button>
           </DialogFooter>
         </DialogContent>

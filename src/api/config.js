@@ -16,12 +16,10 @@ export const ENDPOINTS = {
   CREATE_AREA: '/regions/create/',
   GET_AREAS: '/regions/',
   UPDATE_AREA: (id) => `/regions/${id}/update/`,
+  DELETE_AREA: (id) => `/regions/${id}/delete/`,
   // Popup endpoints
   CREATE_POPUP: '/popups/',
   GET_POPUPS: '/popups/',
-  // // Patient endpoints
-  // PATIENTS: '/patients/',
-  // PATIENT_DETAIL: (id) => `/patients/${id}/`,
 };
 
 // API istekleri için varsayılan ayarlar

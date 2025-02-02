@@ -66,6 +66,21 @@ class ApiService {
 
     return response.json();
   }
+
+  async delete(endpoint, headers = null) {
+    const requestHeaders = headers || this.getHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'DELETE',
+      headers: requestHeaders,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API isteği başarısız: ${response.status}`);
+    }
+
+    return response.json();
+  } 
 }
 
 export const apiService = new ApiService();

@@ -72,6 +72,25 @@ export class AreaService {
             throw error;
         }
     }
+    async deleteArea(areaId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const response = await apiService.delete(
+                ENDPOINTS.DELETE_AREA(areaId),
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölge silme hatası:', error);
+            throw error;
+        }
+    }
 }
 
 export const areaService = new AreaService();
