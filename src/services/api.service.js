@@ -79,8 +79,33 @@ class ApiService {
       throw new Error(`API isteği başarısız: ${response.status}`);
     }
 
-    return response.json();
+    //return response.json();
+    // Response boş ise veya content-length 0 ise boş obje dön
+    const contentLength = response.headers.get('content-length');
+    if (contentLength === '0' || contentLength === null) {
+      return {};
+    }
+
+    // Content varsa JSON olarak parse et
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
   } 
+
+  async patch(endpoint, data, headers = null) {
+    const requestHeaders = headers || this.getHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: requestHeaders,
+      body: data instanceof FormData ? data : JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API isteği başarısız: ${response.status}`);
+    }
+
+    return response.json();
+  }
 }
 
 export const apiService = new ApiService();

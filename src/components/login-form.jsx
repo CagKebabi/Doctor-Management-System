@@ -45,6 +45,9 @@ export function LoginForm({ className, ...props }) {
         throw new Error('Token alınamadı');
       }
     } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userEmail');
       console.error('Login error:', error);
       alert(error.message);
     } finally {

@@ -55,6 +55,48 @@ class UserService {
       throw error;
     }
   }
+
+  async updateUser(userId, data) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const headers = {
+        'Authorization': `Bearer ${token}`
+        // Content-Type header'ı FormData ile otomatik ayarlanacak
+      };
+      
+      const response = await apiService.put(
+        ENDPOINTS.UPDATE_USER(userId),
+        data,
+        headers
+      );
+      
+      return response;
+    } catch (error) {
+      console.error('Kullanıcı güncelleme hatası:', error);
+      throw error;
+    }
+  }
+
+  async deleteUser(userId) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+      
+      const response = await apiService.delete(
+        ENDPOINTS.DELETE_USER(userId),
+        headers
+      );
+      
+      return response;
+    } catch (error) {
+      console.error('Kullanıcı silme hatası:', error);
+      throw error;
+    }
+  }
 }
 
 export const userService = new UserService();

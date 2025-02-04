@@ -91,6 +91,48 @@ export class AreaService {
             throw error;
         }
     }
+    async assignAdmin(areaId, formData) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            
+            const response = await apiService.post(
+                ENDPOINTS.ASSIGN_ADMIN(areaId),
+                formData,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölgeye admin ekleme hatası:', error);
+            throw error;
+        }
+    }
+    async assignDoctor(areaId, formData) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            
+            const response = await apiService.post(
+                ENDPOINTS.ASSIGN_DOCTOR(areaId),
+                formData,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölgeye doktor ekleme hatası:', error);
+            throw error;
+        }
+    }
 }
 
 export const areaService = new AreaService();

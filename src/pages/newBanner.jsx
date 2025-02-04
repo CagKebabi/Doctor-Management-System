@@ -76,7 +76,7 @@ export default function NewBanner() {
       // API çağrısı burada yapılacak
       const response = await popupService.createNewPopup(formData);
       console.log('Banner oluşturuldu:', response);
-      navigate("/");
+      navigate("/banner-list");
     } catch (error) {
       console.error("Banner oluşturma hatası:", error);
       alert(error.message);

@@ -20,6 +20,29 @@ import {
 } from "@/components/ui/table";
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -29,37 +52,51 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { Edit, Save, X } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 
-export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
+export function DataTable({ columns, data, filterColumn = "email", onRowSave, onRowDelete }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
-  const [editingRow, setEditingRow] = useState(null);
-  const [editedData, setEditedData] = useState({});
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [editedData, setEditedData] = useState({
+    email: "",
+    is_active: false
+  });
 
   const handleEditClick = (row) => {
-    setEditingRow(row.id);
-    setEditedData(row.original);
+    setSelectedRow(row);
+    setEditedData({
+      email: row.original.email,
+      is_active: row.original.is_active || false
+    });
+    setEditDialogOpen(true);
   };
 
-  const handleSaveClick = async (row) => {
+  const handleDeleteClick = (row) => {
+    setSelectedRow(row);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleSaveClick = async () => {
     if (onRowSave) {
-      await onRowSave(editedData);
+      await onRowSave(selectedRow.original.id, editedData);
     }
-    setEditingRow(null);
-    setEditedData({});
+    setEditDialogOpen(false);
+    setSelectedRow(null);
+    setEditedData({
+      email: "",
+      is_active: false
+    });
   };
 
-  const handleCancelEdit = () => {
-    setEditingRow(null);
-    setEditedData({});
-  };
-
-  const handleCellEdit = (columnId, value) => {
-    setEditedData((prev) => ({
-      ...prev,
-      [columnId]: value,
-    }));
+  const handleDeleteConfirm = async () => {
+    if (onRowDelete && selectedRow) {
+      await onRowDelete(selectedRow.original);
+    }
+    setDeleteDialogOpen(false);
+    setSelectedRow(null);
   };
 
   const table = useReactTable({
@@ -81,7 +118,7 @@ export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Ara..."
+          placeholder="E-posta ile ara..."
           value={table.getColumn(filterColumn)?.getFilterValue() ?? ""}
           onChange={(event) =>
             table.getColumn(filterColumn)?.setFilterValue(event.target.value)
@@ -119,41 +156,11 @@ export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {editingRow === row.id ? (
-                        <Input
-                          value={editedData[cell.column.id] || ""}
-                          onChange={(e) =>
-                            handleCellEdit(cell.column.id, e.target.value)
-                          }
-                          className="w-full"
-                        />
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                   <TableCell>
-                    {editingRow === row.id ? (
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleSaveClick(row)}
-                        >
-                          <Save className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleCancelEdit}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
+                    <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -161,7 +168,15 @@ export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                    )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(row)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -178,6 +193,71 @@ export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Kullanıcı Düzenle</DialogTitle>
+            <DialogDescription>
+              Kullanıcı bilgilerini güncelleyin.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                E-posta
+              </Label>
+              <Input
+                id="email"
+                value={editedData.email}
+                onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Durum
+              </Label>
+              <div className="flex items-center space-x-2 col-span-3">
+                <Switch
+                  id="status"
+                  checked={editedData.is_active}
+                  onCheckedChange={(checked) => 
+                    setEditedData({ ...editedData, is_active: checked })
+                  }
+                />
+                <Label htmlFor="status" className="text-sm text-muted-foreground">
+                  {editedData.is_active ? "Aktif" : "Pasif"}
+                </Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              İptal
+            </Button>
+            <Button onClick={handleSaveClick}>Kaydet</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Silme İşlemini Onayla</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu kaydı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-700">
+              Sil
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex items-center justify-between py-4">
         <div className="text-sm text-muted-foreground">
           Toplam {table.getFilteredRowModel().rows.length} kayıt
@@ -195,60 +275,35 @@ export function DataTable({ columns, data, filterColumn = "name", onRowSave }) {
                 }
               />
             </PaginationItem>
-
-            {/* İlk sayfa */}
             <PaginationItem>
               <PaginationLink
                 onClick={() => table.setPageIndex(0)}
-                isActive={table.getState().pagination.pageIndex === 0}
+                disabled={!table.getCanPreviousPage()}
+                className={
+                  !table.getCanPreviousPage()
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }
               >
                 1
               </PaginationLink>
             </PaginationItem>
-
-            {/* Eğer başlangıçta boşluk varsa */}
-            {table.getPageCount() > 3 &&
-              table.getState().pagination.pageIndex > 1 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-
-            {/* Mevcut sayfa */}
-            {table.getState().pagination.pageIndex > 0 &&
-              table.getState().pagination.pageIndex <
-                table.getPageCount() - 1 && (
-                <PaginationItem>
-                  <PaginationLink isActive>
-                    {table.getState().pagination.pageIndex + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              )}
-
-            {/* Eğer sonda boşluk varsa */}
-            {table.getPageCount() > 3 &&
-              table.getState().pagination.pageIndex <
-                table.getPageCount() - 2 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-
-            {/* Son sayfa */}
+            {table.getPageCount() > 2 && <PaginationEllipsis />}
             {table.getPageCount() > 1 && (
               <PaginationItem>
                 <PaginationLink
                   onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  isActive={
-                    table.getState().pagination.pageIndex ===
-                    table.getPageCount() - 1
+                  disabled={!table.getCanNextPage()}
+                  className={
+                    !table.getCanNextPage()
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
                   }
                 >
                   {table.getPageCount()}
                 </PaginationLink>
               </PaginationItem>
             )}
-
             <PaginationItem>
               <PaginationNext
                 onClick={() => table.nextPage()}

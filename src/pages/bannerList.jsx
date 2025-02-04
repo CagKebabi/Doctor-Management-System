@@ -17,11 +17,40 @@ import {
 import { MoreHorizontal, Loader2 } from "lucide-react";
 import { popupService } from "@/services/popup.service";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBanner, setSelectedBanner] = useState(null);
+  const [editedData, setEditedData] = useState({
+    title: "",
+    is_active: false
+  });
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
   // CellMeasurer için cache oluştur
   const cache = useRef(
@@ -73,6 +102,68 @@ export default function BannersPage() {
     cache.current.clearAll();
   }, [banners]);
 
+  // Düzenleme dialog'unu aç
+  const handleEditClick = (banner) => {
+    setSelectedBanner(banner);
+    setEditedData({
+      title: banner.title,
+      is_active: banner.is_active
+    });
+    setEditDialogOpen(true);
+  };
+
+  // Silme dialog'unu aç
+  const handleDeleteClick = (banner) => {
+    setSelectedBanner(banner);
+    setDeleteDialogOpen(true);    
+  };
+
+  // Değişiklikleri kaydet
+  const handleSaveClick = async () => {
+    setIsEditLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', editedData.title);
+      formData.append('is_active', editedData.is_active);
+
+      await popupService.updatePopup(selectedBanner.id, formData);
+      
+      // Listeyi güncelle
+      const response = await popupService.getPopups();
+      setBanners(response);
+      
+      setEditDialogOpen(false);
+      setSelectedBanner(null);
+      setEditedData({
+        title: "",
+        is_active: false
+      });
+    } catch (error) {
+      console.error('Banner güncelleme hatası:', error);
+    } finally {
+      setIsEditLoading(false);
+    }
+  };
+
+  // Banner'ı sil
+  const handleDeleteConfirm = async () => {
+    setIsDeleteLoading(true);
+    try {
+      await popupService.deletePopup(selectedBanner.id);
+      
+      // Listeyi güncelle
+      const response = await popupService.getPopups();
+      setBanners(response);
+      
+      setDeleteDialogOpen(false);
+      setSelectedBanner(null);
+    } catch (error) {
+      console.error('Banner silme hatası:', error);
+    } finally {
+      setIsDeleteLoading(false);
+    }
+  };
+
   // CellRenderer fonksiyonu
   const cellRenderer = ({ columnIndex, key, rowIndex, style, parent, width }) => {
     const dimensions = getGridDimensions(width);
@@ -120,10 +211,13 @@ export default function BannersPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClick(banner)}>
                         Düzenle
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600">
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteClick(banner)}
+                        className="text-red-600"
+                      >
                         Sil
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -197,6 +291,63 @@ export default function BannersPage() {
           }}
         </AutoSizer>
       </div>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Banner Düzenle</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Başlık</Label>
+              <Input
+                id="title"
+                value={editedData.title}
+                onChange={(e) => setEditedData({ ...editedData, title: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="is_active"
+                checked={editedData.is_active}
+                onCheckedChange={(checked) => setEditedData({ ...editedData, is_active: checked })}
+              />
+              <Label htmlFor="is_active">
+                {editedData.is_active ? "Aktif" : "Pasif"}
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              İptal
+            </Button>
+            <Button onClick={handleSaveClick} disabled={isEditLoading}>
+              {isEditLoading ? "Kaydediliyor..." : "Kaydet"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Banner'ı Sil</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu banner'ı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleteLoading}
+              className="bg-red-500 hover:bg-red-700"
+            >
+              {isDeleteLoading ? "Siliniyor..." : "Sil"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

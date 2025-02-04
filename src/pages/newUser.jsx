@@ -31,8 +31,8 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: "Şifre en az 8 karakter olmalıdır.",
   }),
-  role: z.string({
-    required_error: "Lütfen bir rol seçiniz.",
+  role: z.enum(["admin", "doctor"], {
+    errorMap: (issue, ctx) => ({ message: 'Lütfen geçerli bir rol seçiniz' })
   }),
 });
 
@@ -141,7 +141,6 @@ export default function NewUser() {
                     <SelectContent>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="doctor">Doktor</SelectItem>
-                      <SelectItem value="secretary">Sekreter</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

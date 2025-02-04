@@ -101,11 +101,11 @@ export default function Page() {
   return (
     <>
       <TableStatistic />
-      <DataTable
+      {/* <DataTable
         columns={columns}
         data={data}
         filterColumn="name"
-      />
+      /> */}
     </>
   );
 }

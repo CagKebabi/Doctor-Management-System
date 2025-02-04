@@ -111,7 +111,7 @@ export default function NotificationsPage() {
     <div className="container mx-auto py-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Bildirimler</h1>
-        <div className="flex items-center gap-4">
+        {/* <div className="flex items-center gap-4">
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrele" />
@@ -122,7 +122,7 @@ export default function NotificationsPage() {
               <SelectItem value="read">Okunmuş</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       <div style={{ height: getListHeight() }}>

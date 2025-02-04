@@ -24,18 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { notificationService } from "@/services/notification.service";
 import { areaService } from "@/services/area.service";
-// Form doğrulama şeması
-const formSchema = z.object({
-  text: z.string().min(10, {
-    message: "Duyuru metni en az 10 karakter olmalıdır.",
-  }),
-  targetRole: z.string({
-    message: "Hedef rol seçiniz.",
-  }),
-  region: z.string({
-    message: "Bölge seçiniz.",
-  }),
-});
+
 
 // Rol seçenekleri
 const roleOptions = [
@@ -57,6 +46,21 @@ export default function NewNotification() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [areas, setAreas] = useState([]);
+
+  // Form doğrulama şeması
+  const formSchema = z.object({
+    text: z.string().min(10, {
+      message: "Duyuru metni en az 10 karakter olmalıdır.",
+    }),
+    targetRole: z.enum(["admin", "doctor"], {
+      errorMap: (issue, ctx) => ({ message: 'Lütfen geçerli bir rol seçiniz' }),
+    }),
+    region: z.string({
+      required_error: "Lütfen bir bölge seçiniz",
+    }).refine((value) => areas.some(area => area.id === value), {
+      message: "Lütfen geçerli bir bölge seçiniz",
+    })
+  });
 
   // Bölge listesi alınıyor
   useEffect(() => {
