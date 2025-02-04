@@ -21,9 +21,9 @@ export default function NotificationNavigation() {
               aria-label="Bildirimler"
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-blue-500 text-[10px] font-medium text-white flex justify-center items-center">
+              {/* <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-blue-500 text-[10px] font-medium text-white flex justify-center items-center">
                 3
-              </span>
+              </span> */}
             </Button>
           </Link>
         </TooltipTrigger>

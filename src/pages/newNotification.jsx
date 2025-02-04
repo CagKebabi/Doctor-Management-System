@@ -27,11 +27,11 @@ import { areaService } from "@/services/area.service";
 
 
 // Rol seçenekleri
-const roleOptions = [
-  { value: "all", label: "Tümü" },
-  { value: "admin", label: "Admin" },
-  { value: "doctor", label: "Doktor" },
-];
+// const roleOptions = [
+//   { value: "all", label: "Tümü" },
+//   { value: "admin", label: "Admin" },
+//   { value: "doctor", label: "Doktor" },
+// ];
 
 // Bölge seçenekleri
 const regionOptions = [
@@ -46,6 +46,8 @@ export default function NewNotification() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [areas, setAreas] = useState([]);
+
+  const userRole = localStorage.getItem('role');
 
   // Form doğrulama şeması
   const formSchema = z.object({
@@ -156,11 +158,28 @@ export default function NewNotification() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {roleOptions.map((role) => (
+                      {/* {roleOptions.map((role) => (
                         <SelectItem key={role.value} value={role.value}>
                           {role.label}
                         </SelectItem>
-                      ))}
+                      ))} */}
+                      {userRole === 'admin' && (
+                        <SelectItem key="doctors" value="doctor">
+                          Doktorlar
+                        </SelectItem>
+                      )}
+                      {
+                        userRole === 'superadmin' && (
+                          <>
+                          <SelectItem key="admin" value="admin">
+                            Admin
+                          </SelectItem>
+                          <SelectItem key="doctors" value="doctor">
+                            Doktor
+                          </SelectItem>
+                          </>
+                        )
+                      }
                     </SelectContent>
                   </Select>
                   <FormDescription>

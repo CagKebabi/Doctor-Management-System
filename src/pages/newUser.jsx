@@ -39,6 +39,10 @@ const formSchema = z.object({
 export default function NewUser() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  // const [userRole, setUserRole] = useState(localStorage.getItem('role'));
+
+ const userRole = localStorage.getItem('role');
+  
 
   // Form tanımlaması
   const form = useForm({
@@ -139,8 +143,23 @@ export default function NewUser() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="doctor">Doktor</SelectItem>
+                      {
+                        userRole === "admin" && (
+                          <>
+                          <SelectItem value="doctor">Doktor</SelectItem>
+                          </>
+                        )
+                      }
+                      {
+                        userRole === "superadmin" && (
+                          <>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="doctor">Doktor</SelectItem>  
+                          </>
+                         )
+                      }
+                      {/* <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="doctor">Doktor</SelectItem> */}
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -35,10 +35,13 @@ export function LoginForm({ className, ...props }) {
       if (response.access && response.refresh) {
         localStorage.setItem('token', response.access);
         localStorage.setItem('refreshToken', response.refresh);
-        localStorage.setItem('userEmail', formData.email);
-        
+        localStorage.setItem('userEmail', response.user.email);
+        localStorage.setItem('role', response.user.role);
+
         console.log("Access Token:", localStorage.getItem('token'));
         console.log("Refresh Token:", localStorage.getItem('refreshToken'));
+        console.log("role", localStorage.getItem('role'));
+        
         
         navigate("/");
       } else {
@@ -101,12 +104,12 @@ export function LoginForm({ className, ...props }) {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
               </Button>
-              <div className="text-center text-sm">
+              {/* <div className="text-center text-sm">
                 Bir hesabınız yok mu?{" "}
                 <Link to="/register" className="underline underline-offset-4">
                   Kayıt Ol
                 </Link>
-              </div>
+              </div> */}
             </div>
           </form>
         </CardContent>

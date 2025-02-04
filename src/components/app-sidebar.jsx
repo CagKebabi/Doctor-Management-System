@@ -20,8 +20,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { authService } from "../services/auth.service";
 
-// This is sample data.
-const data = {
+// SuperAdmin sayfasının sidebar'i
+const superadminSidebar = {
   navMain: [
     {
       title: "OLUŞTUR",
@@ -32,7 +32,7 @@ const data = {
           url: "/new-user",
         },
         {
-          title: "Yeni Hasta",
+          title: "Yeni Kayıt",
           url: "/new-patient",
         },
         {
@@ -74,12 +74,153 @@ const data = {
   ],
 };
 
+// Admin sayfasının sidebar'i yeni gbölge yok yeni popup yok
+const adminSidebar = {
+  navMain: [
+    {
+      title: "OLUŞTUR",
+      url: "#",
+      items: [
+        {
+          title: "Yeni Kullanıcı",
+          url: "/new-user",
+        },
+        {
+          title: "Yeni Kayıt",
+          url: "/new-patient",
+        },
+        {
+          title: "Yeni Duyuru",
+          url: "/new-notification",
+        },
+      ],
+    },
+    {
+      title: "LİSTELE",
+      url: "#",
+      items: [
+        {
+          title: "Kullanıcı Listesi",
+          url: "/user-list",
+        },
+        {
+          title: "Hasta Kayıt Listesi",
+          url: "/patient-list",
+        },
+        {
+          title: "Bölge Listesi",
+          url: "/area-list",
+        },
+      ],
+    },
+  ],
+};
+
+// User sayfasının sidebar'i yeni gbölge yok yeni popup yok
+const userSidebar = {
+  navMain: [
+    {
+      title: "OLUŞTUR",
+      url: "#",
+      items: [
+        {
+          title: "Yeni Kayıt",
+          url: "/new-patient",
+        },
+      ],
+    },
+    {
+      title: "LİSTELE",
+      url: "#",
+      items: [
+        {
+          title: "Hasta Kayıt Listesi",
+          url: "/patient-list",
+        },
+        {
+          title: "Bölge Listesi",
+          url: "/area-list",
+        },
+      ],
+    },
+  ],
+};
+
+// This is sample data.
+// const data = {
+//   navMain: [
+//     {
+//       title: "OLUŞTUR",
+//       url: "#",
+//       items: [
+//         {
+//           title: "Yeni Kullanıcı",
+//           url: "/new-user",
+//         },
+//         {
+//           title: "Yeni Kayıt",
+//           url: "/new-patient",
+//         },
+//         {
+//           title: "Yeni Bölge",
+//           url: "/new-area",
+//         },
+//         {
+//           title: "Yeni Duyuru",
+//           url: "/new-notification",
+//         },
+//         {
+//           title: "Yeni Banner",
+//           url: "/new-banner",
+//         },
+//       ],
+//     },
+//     {
+//       title: "LİSTELE",
+//       url: "#",
+//       items: [
+//         {
+//           title: "Kullanıcı Listesi",
+//           url: "/user-list",
+//         },
+//         {
+//           title: "Hasta Kayıt Listesi",
+//           url: "/patient-list",
+//         },
+//         {
+//           title: "Bölge Listesi",
+//           url: "/area-list",
+//         },
+//         {
+//           title: "Banner Listesi",
+//           url: "/banner-list",
+//         }
+//       ],
+//     },
+//   ],
+// };
+
 export function AppSidebar({ ...props }) {
   const [userEmail, setUserEmail] = useState("");
   const [formData, setFormData] = useState({
     refresh: localStorage.getItem('refreshToken'),
   });
+  const userRole = localStorage.getItem('role');
+  const [data, setData] = useState({});
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userRole === "superadmin") {
+      setData(superadminSidebar);
+    } 
+    else if (userRole === "admin") {
+      setData(adminSidebar);
+    }
+    else {
+      setData(userSidebar);
+    }
+  }, [userRole]);
 
   useEffect(() => {
     // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
@@ -130,7 +271,7 @@ export function AppSidebar({ ...props }) {
       <SidebarContent className="justify-between">
         <div>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {data.navMain?.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>

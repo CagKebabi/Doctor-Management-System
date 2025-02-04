@@ -3,7 +3,7 @@ const routeMap = {
   '/': { title: 'Ana Sayfa', parent: null },
   '/notifications': { title: 'Bildirimler', parent: '/' },
   '/new-user': { title: 'Yeni Kullanıcı', parent: '/' },
-  '/new-patient': { title: 'Yeni Hasta', parent: '/' },
+  '/new-patient': { title: 'Yeni Kayıt', parent: '/' },
   '/users': { title: 'Kullanıcı Listesi', parent: '/' },
   '/patients': { title: 'Hasta Listesi', parent: '/' },
   '/regions': { title: 'Bölge Listesi', parent: '/' },
