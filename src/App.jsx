@@ -5,7 +5,7 @@ import NewUser from "@/pages/newUser";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import NotificationsPage from "@/pages/notifications";
-import NewPatient from "./pages/newPatient";
+import NewRecord from "./pages/newRecord";
 import AreaList from "./pages/areaList";
 import NewNotification from "./pages/newNotification";
 import NewArea from "./pages/newArea";
@@ -31,7 +31,7 @@ const router = createBrowserRouter([
       },
       {
         path: "new-patient",
-        element: <NewPatient />,
+        element: <NewRecord />,
       },
       {
         path: "notifications",

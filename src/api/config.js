@@ -26,6 +26,8 @@ export const ENDPOINTS = {
   GET_POPUPS: '/popups/',
   UPDATE_POPUP: (id) => `/popups/${id}/`,
   DELETE_POPUP: (id) => `/popups/${id}/delete/`,
+  // Record endpoints
+  CREATE_RECORD: '/records/create/',
 };
 
 // API istekleri için varsayılan ayarlar

@@ -58,7 +58,7 @@ const superadminSidebar = {
           url: "/user-list",
         },
         {
-          title: "Hasta Kayıt Listesi",
+          title: "Kayıt Listesi",
           url: "/patient-list",
         },
         {
