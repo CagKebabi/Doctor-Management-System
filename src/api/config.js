@@ -29,6 +29,10 @@ export const ENDPOINTS = {
   // Record endpoints
   CREATE_RECORD: '/records/create/',
   GET_RECORDS: '/records/',
+  DELETE_RECORD: (id) => `/records/${id}/delete/`,
+  UPDATE_RECORD: (id) => `/records/${id}/update/`,
+  EXPORT_RECORDS_TO_PDF: '/records/export/pdf/',
+  EXPORT_RECORDS_TO_EXCEL: '/records/export/excel/',
 };
 
 // API istekleri için varsayılan ayarlar
