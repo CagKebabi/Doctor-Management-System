@@ -331,11 +331,11 @@ const AreaList = () => {
                     </p>
                     <p className="text-sm">
                       <span className="font-semibold">Admin Sayısı:</span>{" "}
-                      {area.admins.length}
+                      {area.admins?.length}
                     </p>
                     <p className="text-sm">
                       <span className="font-semibold">Doktor Sayısı:</span>{" "}
-                      {area.doctors.length}
+                      {area.doctors?.length}
                     </p>
                     <p className="text-sm">
                       <span className="font-semibold">Son Güncelleme:</span>{" "}
