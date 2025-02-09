@@ -33,6 +33,7 @@ export const ENDPOINTS = {
   UPDATE_RECORD: (id) => `/records/${id}/update/`,
   EXPORT_RECORDS_TO_PDF: '/records/export/pdf/',
   EXPORT_RECORDS_TO_EXCEL: '/records/export/excel/',
+  ADD_FIELDS_TO_RECORDS: (id) => `/records/${id}/fields/`
 };
 
 // API istekleri için varsayılan ayarlar

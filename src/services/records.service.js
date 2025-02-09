@@ -170,6 +170,28 @@ class RecordsService {
             throw error;
         }
     }
+
+    async addFieldsToRecord(recordId, fields) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const response = await apiService.post(
+                ENDPOINTS.ADD_FIELDS_TO_RECORDS(recordId),
+                fields,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Kayıt güncelleme hatası:', error);
+            throw error;
+        }
+    }
 }
 
 export const recordsService = new RecordsService();

@@ -135,7 +135,7 @@ const columns = [
     header: "İsim",
   },
   {
-    accessorKey: "region",
+    accessorKey: "region_name",
     header: "Bölge",
   },
 ];
@@ -144,21 +144,55 @@ export default function PatientList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [data, setData] = useState([]);
   const [areas, setAreas] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
+
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [isEditLoading, setIsEditLoading] = useState(false);
+
   const [editForm, setEditForm] = useState({
     name: "",
     region: ""
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
-  const itemsPerPage = 10;
+
+  const [detailFields, setDetailFields] = useState([]);
+  const [newDetailName, setNewDetailName] = useState("");
+  const [newDetailType, setNewDetailType] = useState("");
+  const [newDetailValue, setNewDetailValue] = useState("");
+
+  const handleAddDetail = () => {
+    if (!newDetailName || !newDetailType || !newDetailValue) return;
+
+    setDetailFields([
+      ...detailFields,
+      {
+        field_name: newDetailName,
+        field_type: newDetailType,
+        value: newDetailValue
+      }
+    ]);
+
+    // Reset form
+    setNewDetailName("");
+    setNewDetailType("");
+    setNewDetailValue("");
+  };
+
+  const handleRemoveDetail = (index) => {
+    const updatedFields = detailFields.filter((_, i) => i !== index);
+    setDetailFields(updatedFields);
+  };
 
   // Kayıt listesi
   async function getRecords() {
@@ -191,16 +225,18 @@ export default function PatientList() {
   );
 
   // Sayfalama için veri hesaplama
+  //const itemsPerPage = 10;
+
   const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredData.slice(startIndex, endIndex);
+  // const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const currentItems = filteredData.slice(startIndex, endIndex);
 
   // Sayfa değiştirme fonksiyonu
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  // const handlePageChange = (page) => {
+  //   setCurrentPage(page);
+  // };
 
   // Table fonksiyonları
   const table = useReactTable({
@@ -232,8 +268,10 @@ export default function PatientList() {
     setShowDeleteDialog(true);
   };
 
-  const handleViewClick = (row) => {
-    console.log(row);
+  const handleDetailsClick = (row) => {
+    setSelectedPatient(row);
+    setShowDetailsDialog(true);   
+    console.log(selectedPatient);
   };
 
   const handleEditConfirm = async () => {
@@ -265,6 +303,27 @@ export default function PatientList() {
       getRecords();
     } catch (error) {
       console.error('Silme işlemi başarısız:', error);
+      setIsDeleteLoading(false);
+    }
+  };
+
+  const handleDetailsConfirm = async () => {
+    setIsDetailsLoading(true);
+    try {
+      // detailFields'i API'nin beklediği formata dönüştür
+      const formattedData = {
+        fields: detailFields
+      };
+
+      await recordsService.addFieldsToRecord(selectedPatient.id, formattedData);
+      setSelectedPatient(null);
+      setDetailFields([]); // Formu temizle
+      setIsDetailsLoading(false);
+      setShowDetailsDialog(false);
+      getRecords();
+    } catch (error) {
+      console.error('Detaylar kaydedilemiyor:', error);
+      setIsDetailsLoading(false);
     }
   };
 
@@ -338,9 +397,7 @@ export default function PatientList() {
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32"><defs><linearGradient id="vscodeIconsFileTypeExcel0" x1="4.494" x2="13.832" y1="-2092.086" y2="-2075.914" gradientTransform="translate(0 2100)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#18884f"/><stop offset=".5" stopColor="#117e43"/><stop offset="1" stopColor="#0b6631"/></linearGradient></defs><path fill="#185c37" d="M19.581 15.35L8.512 13.4v14.409A1.19 1.19 0 0 0 9.705 29h19.1A1.19 1.19 0 0 0 30 27.809V22.5Z"/><path fill="#21a366" d="M19.581 3H9.705a1.19 1.19 0 0 0-1.193 1.191V9.5L19.581 16l5.861 1.95L30 16V9.5Z"/><path fill="#107c41" d="M8.512 9.5h11.069V16H8.512Z"/><path d="M16.434 8.2H8.512v16.25h7.922a1.2 1.2 0 0 0 1.194-1.191V9.391A1.2 1.2 0 0 0 16.434 8.2" opacity="0.1"/><path d="M15.783 8.85H8.512V25.1h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2"/><path d="M15.783 8.85H8.512V23.8h7.271a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2"/><path d="M15.132 8.85h-6.62V23.8h6.62a1.2 1.2 0 0 0 1.194-1.191V10.041a1.2 1.2 0 0 0-1.194-1.191" opacity="0.2"/><path fill="url(#vscodeIconsFileTypeExcel0)" d="M3.194 8.85h11.938a1.193 1.193 0 0 1 1.194 1.191v11.918a1.193 1.193 0 0 1-1.194 1.191H3.194A1.19 1.19 0 0 1 2 21.959V10.041A1.19 1.19 0 0 1 3.194 8.85"/><path fill="#fff" d="m5.7 19.873l2.511-3.884l-2.3-3.862h1.847L9.013 14.6c.116.234.2.408.238.524h.017q.123-.281.26-.546l1.342-2.447h1.7l-2.359 3.84l2.419 3.905h-1.809l-1.45-2.711A2.4 2.4 0 0 1 9.2 16.8h-.024a1.7 1.7 0 0 1-.168.351l-1.493 2.722Z"/><path fill="#33c481" d="M28.806 3h-9.225v6.5H30V4.191A1.19 1.19 0 0 0 28.806 3"/><path fill="#107c41" d="M19.581 16H30v6.5H19.581Z"/></svg>
               )
-            }
-            {/* <FileSpreadsheet className="h-4 w-4" /> */}
-            
+            }            
           </Button>
         </div>
       </div>
@@ -392,8 +449,8 @@ export default function PatientList() {
                         <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
                           Düzenle
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewClick(row.original)}>
-                          Görüntüle
+                        <DropdownMenuItem onClick={() => handleDetailsClick(row.original)}>
+                          Detayları Gör
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDeleteClick(row.original)} className="text-red-600">
                           Sil
@@ -479,24 +536,6 @@ export default function PatientList() {
         </Pagination>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hastayı Sil</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bu işlem geri alınamaz. Bu hastayı silmek istediğinizden emin misiniz?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>İptal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700" disabled={isDeleteLoading}>
-              {isDeleteLoading ? 'Siliniyor...' : 'Sil'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
@@ -549,6 +588,168 @@ export default function PatientList() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Record Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Kayıt Detayları</DialogTitle>
+            <DialogDescription>
+              Kayıt için detay ekleyebilir veya mevcut detayları görüntüleyebilirsiniz.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* Mevcut Detaylar */}
+          {
+            <div className="border rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-medium mb-3">Mevcut Detaylar</h4>
+              {/* Mevcut Detayları listele */}
+              {
+                selectedPatient?.fields.map((field, index) => (
+                  <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                  <div>
+                    <span className="font-medium">{field.field_name}: </span>
+                    <span>{field.value}</span>
+                    <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
+                  </div>
+                  {/* <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => handleRemoveDetail(index)}
+                  >
+                    Sil
+                  </Button> */}
+                </div>
+                ))
+              }
+              {/* Eklenen Detaylar */}
+              {detailFields.map((field, index) => (
+                <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                  <div>
+                    <span className="font-medium">{field.field_name}: </span>
+                    <span>{field.value}</span>
+                    <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => handleRemoveDetail(index)}
+                  >
+                    Sil
+                  </Button>
+                </div>
+              ))}
+            </div>
+          }
+
+          {/* Yeni Detay Ekleme Formu */}
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Detay Adı</Label>
+              <Input
+                className="col-span-3"
+                value={newDetailName}
+                onChange={(e) => setNewDetailName(e.target.value)}
+                placeholder="Detay adını giriniz"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Detay Türü</Label>
+              <Select
+                value={newDetailType}
+                onValueChange={setNewDetailType}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Detay türünü seçiniz" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Yazı</SelectItem>
+                  <SelectItem value="integer">Sayı</SelectItem>
+                  <SelectItem value="boolean">Evet/Hayır</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Seçilen türe göre değer inputu */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Değer</Label>
+              {newDetailType === "boolean" ? (
+                <Select
+                  value={newDetailValue}
+                  onValueChange={setNewDetailValue}
+                  className="col-span-3"
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Değer seçiniz" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Evet</SelectItem>
+                    <SelectItem value="false">Hayır</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : newDetailType === "integer" ? (
+                <Input
+                  type="number"
+                  className="col-span-3"
+                  value={newDetailValue}
+                  onChange={(e) => setNewDetailValue(e.target.value)}
+                  placeholder="Sayısal değer giriniz"
+                />
+              ) : (
+                <Input
+                  className="col-span-3"
+                  value={newDetailValue}
+                  onChange={(e) => setNewDetailValue(e.target.value)}
+                  placeholder="Değer giriniz"
+                />
+              )}
+            </div>
+
+            <Button
+              type="button"
+              onClick={handleAddDetail}
+              className="ml-auto"
+            >
+              Detay Ekle
+            </Button>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowDetailsDialog(false);
+              setDetailFields([]);
+              setNewDetailName("");
+              setNewDetailType("");
+              setNewDetailValue("");
+            }}>
+              İptal
+            </Button>
+            <Button onClick={handleDetailsConfirm} disabled={isDetailsLoading}>
+              {isDetailsLoading ? 'Kaydediliyor...' : 'Kaydet'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hastayı Sil</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu işlem geri alınamaz. Bu hastayı silmek istediğinizden emin misiniz?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700" disabled={isDeleteLoading}>
+              {isDeleteLoading ? 'Siliniyor...' : 'Sil'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
