@@ -102,6 +102,7 @@ const AreaList = () => {
   const [openDoctorCombobox, setOpenDoctorCombobox] = useState(false);
 
   const [error, setError] = useState(null);
+  const userRole = localStorage.getItem('role');
 
   async function getAreas() {
     setIsLoading(true);
@@ -290,13 +291,62 @@ const AreaList = () => {
                       <CardDescription>{area.description}</CardDescription>
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      {
+                        userRole === "doctor" ? (
+                          <>
+                          </>
+                        ):
+                        (
+                          <>
+                          <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          </>
+                        )
+                      
+                      }
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(area)}>
+                        {
+                          userRole === "superadmin" && (
+                            <>
+                            <DropdownMenuItem onClick={() => handleEdit(area)}>
+                              Düzenle
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openAssignAdminDialog(area)}
+                            >
+                              Bölgeye Admin Ekle
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openAssignDoctorDialog(area)}
+                            >
+                              Bölgeye Doktor Ekle
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(area)}
+                              className="text-red-600"
+                            >
+                              Sil
+                            </DropdownMenuItem>
+                            </>
+                            
+                          ) 
+                        }
+                        {
+                          userRole === "admin" && (
+                            <>
+                            <DropdownMenuItem 
+                              onClick={() => openAssignDoctorDialog(area)}
+                            >
+                              Bölgeye Doktor Ekle
+                            </DropdownMenuItem>
+                            </>
+                            
+                          ) 
+                        }
+                        {/* <DropdownMenuItem onClick={() => handleEdit(area)}>
                           Düzenle
                         </DropdownMenuItem>
                         <DropdownMenuItem 
@@ -314,7 +364,7 @@ const AreaList = () => {
                           className="text-red-600"
                         >
                           Sil
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

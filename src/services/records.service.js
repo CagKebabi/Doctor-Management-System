@@ -105,7 +105,8 @@ class RecordsService {
                 'Accept': '*/*'  // Tüm content type'ları kabul et
             };
             
-            const response = await fetch('http://127.0.0.1:8000/records/export/pdf/', {
+            // const response = await fetch('http://127.0.0.1:8000/records/export/pdf/', {
+            const response = await fetch('http://92.205.61.102:8001/records/export/pdf/', {
                 method: 'GET',
                 headers: headers,
             });
@@ -140,7 +141,8 @@ class RecordsService {
                 'Accept': '*/*'  // Excel dosyası için gerekli header
             };
             
-            const response = await fetch('http://127.0.0.1:8000/records/export/excel/', {
+            // const response = await fetch('http://127.0.0.1:8000/records/export/excel/', {
+            const response = await fetch('http://92.205.61.102:8001/records/export/excel/', {
                 method: 'GET',
                 headers: headers,
             });

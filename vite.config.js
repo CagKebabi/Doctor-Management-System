@@ -9,7 +9,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/users': {
-        target: 'http://127.0.0.1:8000',
+        // target: 'http://127.0.0.1:8000',
+        target: 'http://92.205.61.102:8001',
         changeOrigin: true,
       },
     },

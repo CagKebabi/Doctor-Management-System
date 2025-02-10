@@ -1,5 +1,6 @@
 // API temel URL'si
-export const API_BASE_URL = 'http://127.0.0.1:8000';
+// export const API_BASE_URL = 'http://127.0.0.1:8000';
+export const API_BASE_URL = 'http://92.205.61.102:8001';
 
 // API endpoint'leri
 export const ENDPOINTS = {

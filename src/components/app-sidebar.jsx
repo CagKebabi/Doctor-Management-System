@@ -66,7 +66,7 @@ const superadminSidebar = {
           url: "/area-list",
         },
         {
-          title: "Banner Listesi",
+          title: "Popup Listesi",
           url: "/banner-list",
         }
       ],
