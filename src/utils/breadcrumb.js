@@ -11,7 +11,7 @@ const routeMap = {
   '/area-list': { title: 'Bölge Listesi', parent: '/' },
   '/user-list': { title: 'Kullanıcı Listesi', parent: '/' },
   '/patient-list': { title: 'Kayıt Listesi', parent: '/' },
-  '/new-banner': { title: 'Yeni Banner', parent: '/' },
+  '/new-banner': { title: 'Yeni Popup', parent: '/' },
   '/new-notification': { title: 'Yeni Duyuru', parent: '/' },
   '/new-area': { title: 'Yeni Bölge', parent: '/' },
   '/banner-list': { title: 'Popup Listesi', parent: '/' }

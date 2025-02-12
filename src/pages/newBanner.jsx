@@ -22,10 +22,10 @@ import { cn } from "@/lib/utils";
 // Form şeması
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Banner başlığı en az 2 karakter olmalıdır.",
+    message: "Popup başlığı en az 2 karakter olmalıdır.",
   }),
   image: z.any()
-    .refine((image) => image?.length > 0, "Banner görseli yüklenmelidir.")
+    .refine((image) => image?.length > 0, "Popup görseli yüklenmelidir.")
     .refine(
       (image) => image?.[0]?.size <= 5000000,
       "Dosya boyutu 5MB'dan küçük olmalıdır."
@@ -101,9 +101,9 @@ export default function NewBanner() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-medium">Yeni Banner Ekle</h3>
+          <h3 className="text-lg font-medium">Yeni Popup Ekle</h3>
           <p className="text-sm text-muted-foreground">
-            Sisteme yeni bir banner eklemek için formu doldurun.
+            Sisteme yeni bir popup eklemek için formu doldurun.
           </p>
         </div>
 
@@ -114,9 +114,9 @@ export default function NewBanner() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Banner Başlığı</FormLabel>
+                  <FormLabel>Popup Başlığı</FormLabel>
                   <FormControl>
-                    <Input placeholder="Banner başlığını giriniz" {...field} />
+                    <Input placeholder="Popup başlığını giriniz" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -130,7 +130,7 @@ export default function NewBanner() {
                 const { error } = formState;
                 return (
                   <FormItem>
-                    <FormLabel>Banner Görseli</FormLabel>
+                    <FormLabel>Popup Görseli</FormLabel>
                     <FormControl>
                       <div className="space-y-4">
                         <Input
@@ -147,7 +147,7 @@ export default function NewBanner() {
                           <div className="mt-4">
                             <img
                               src={preview}
-                              alt="Banner önizleme"
+                              alt="Popup önizleme"
                               className="max-w-full h-auto rounded-lg shadow-sm"
                               style={{ maxHeight: "200px" }}
                             />
@@ -177,10 +177,10 @@ export default function NewBanner() {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      Banner Aktif
+                      Popup Aktif
                     </FormLabel>
                     <FormDescription>
-                      Banner'ı aktif olarak yayınlamak için işaretleyin
+                      Popup'ı aktif olarak yayınlamak için işaretleyin
                     </FormDescription>
                   </div>
                 </FormItem>

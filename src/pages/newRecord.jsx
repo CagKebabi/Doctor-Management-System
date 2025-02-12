@@ -216,6 +216,7 @@ export default function NewRecord() {
           {detailFields.length > 0 && (
             <div className="border rounded-lg p-4 mb-4">
               <h4 className="text-sm font-medium mb-3">Eklenen Detaylar</h4>
+              <div className="max-h-60 overflow-y-auto border p-4">
               {detailFields.map((field, index) => (
                 <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
                   <div>
@@ -233,6 +234,7 @@ export default function NewRecord() {
                   </Button>
                 </div>
               ))}
+              </div>
             </div>
           )}
 

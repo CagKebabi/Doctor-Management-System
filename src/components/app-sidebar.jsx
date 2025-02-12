@@ -44,7 +44,7 @@ const superadminSidebar = {
           url: "/new-notification",
         },
         {
-          title: "Yeni Banner",
+          title: "Yeni Popup",
           url: "/new-banner",
         },
       ],
