@@ -14,7 +14,8 @@ const routeMap = {
   '/new-banner': { title: 'Yeni Popup', parent: '/' },
   '/new-notification': { title: 'Yeni Duyuru', parent: '/' },
   '/new-area': { title: 'Yeni Bölge', parent: '/' },
-  '/banner-list': { title: 'Popup Listesi', parent: '/' }
+  '/banner-list': { title: 'Popup Listesi', parent: '/' },
+  '/new-field': { title: 'Yeni Kayıt Detayı', parent: '/' },
 };
 
 export function generateBreadcrumbs(pathname) {

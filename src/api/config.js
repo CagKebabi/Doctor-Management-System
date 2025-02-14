@@ -28,13 +28,18 @@ export const ENDPOINTS = {
   UPDATE_POPUP: (id) => `/popups/${id}/`,
   DELETE_POPUP: (id) => `/popups/${id}/delete/`,
   // Record endpoints
-  CREATE_RECORD: '/records/create/',
+  CREATE_RECORD: '/records/',
   GET_RECORDS: '/records/',
   DELETE_RECORD: (id) => `/records/${id}/delete/`,
   UPDATE_RECORD: (id) => `/records/${id}/update/`,
   EXPORT_RECORDS_TO_PDF: '/records/export/pdf/',
   EXPORT_RECORDS_TO_EXCEL: '/records/export/excel/',
-  ADD_FIELDS_TO_RECORDS: (id) => `/records/${id}/fields/`
+  ADD_FIELDS_TO_RECORDS: (id) => `/records/${id}/fields/`,
+  //Güncelleme
+  CREATE_FIELD: '/records/fields/',
+  GET_FIELDS: '/records/fields/list/',
+  UPDATE_FIELD: (id) => `/records/fields/${id}/update/`,
+  DELETE_FIELD: (id) => `/records/fields/${id}/delete/`,
 };
 
 // API istekleri için varsayılan ayarlar

@@ -269,6 +269,8 @@ export default function PatientList() {
   };
 
   const handleDetailsClick = (row) => {
+    console.log(row);
+    
     setSelectedPatient(row);
     setShowDetailsDialog(true);   
     console.log(selectedPatient);
@@ -605,26 +607,18 @@ export default function PatientList() {
               <h4 className="text-sm font-medium mb-3">Mevcut Detaylar</h4>
               {/* Mevcut Detayları listele */}
               {
-                selectedPatient?.fields.map((field, index) => (
-                  <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                  <div>
-                    <span className="font-medium">{field.field_name}: </span>
-                    <span>{field.value}</span>
-                    <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
-                  </div>
-                  {/* <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                    onClick={() => handleRemoveDetail(index)}
-                  >
-                    Sil
-                  </Button> */}
-                </div>
-                ))
+                // selectedPatient?.fields.map((field, index) => (
+                //   <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
+                //   <div>
+                //     <span className="font-medium">{field.field_name}: </span>
+                //     <span>{field.value}</span>
+                //     <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
+                //   </div>
+                // </div>
+                // ))
               }
               {/* Eklenen Detaylar */}
-              {detailFields.map((field, index) => (
+              {/*detailFields.map((field, index) => (
                 <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
                   <div>
                     <span className="font-medium">{field.field_name}: </span>
@@ -640,7 +634,7 @@ export default function PatientList() {
                     Sil
                   </Button>
                 </div>
-              ))}
+              ))*/}
             </div>
           }
 

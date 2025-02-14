@@ -36,6 +36,10 @@ const superadminSidebar = {
           url: "/new-patient",
         },
         {
+          title: "Yeni Kayıt Detayı",
+          url: "/new-field",
+        },
+        {
           title: "Yeni Bölge",
           url: "/new-area",
         },

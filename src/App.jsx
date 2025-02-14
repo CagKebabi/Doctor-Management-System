@@ -15,6 +15,7 @@ import NewBanner from "./pages/newBanner";
 import TestComponent from "./pages/testComponent";
 import BannersPage from "./pages/bannerList";
 import "./index.css";
+import NewField from "./pages/newField";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: "new-patient",
         element: <NewRecord />,
+      },
+      {
+        path: "new-field",
+        element: <NewField />,
       },
       {
         path: "notifications",
