@@ -64,70 +64,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-
-// Örnek data
-const data = [
-  {
-    name: "Ahmet Şenses",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Önrek",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-  {
-    name: "Ahmet Yılmaz",
-    email: "ahmet@ornek.com",
-    role: "Admin",
-  },
-];
+import { useToast } from "@/components/hooks/use-toast";
 
 const columns = [
   {
@@ -158,6 +95,9 @@ export default function PatientList() {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDeleteValueInRecordLoading, setIsDeleteValueInRecordLoading] = useState(false);
+  const [isUpdateValueInRecordLoading, setIsUpdateValueInRecordLoading] = useState(false);
+  const [isAddingDetailLoading, setIsAddingDetailLoading] = useState(false);
 
   const [editForm, setEditForm] = useState({
     name: "",
@@ -167,9 +107,12 @@ export default function PatientList() {
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
   const [detailFields, setDetailFields] = useState([]);
-  const [newDetailName, setNewDetailName] = useState("");
-  const [newDetailType, setNewDetailType] = useState("");
-  const [newDetailValue, setNewDetailValue] = useState("");
+  const [availableFields, setAvailableFields] = useState([]);
+  const [selectedField, setSelectedField] = useState(null);
+  const [fieldValue, setFieldValue] = useState("");
+  const [editingValue, setEditingValue] = useState(null);
+
+  const { toast } = useToast();
 
   const handleAddDetail = () => {
     if (!newDetailName || !newDetailType || !newDetailValue) return;
@@ -214,10 +157,113 @@ export default function PatientList() {
     }
   }
 
+  async function getAvailableFields() {
+    try {
+      const fields = await recordsService.getFields();
+      setAvailableFields(fields);
+      console.log('Kayıt Detay Listesi:', fields);
+      
+    } catch (error) {
+      console.error('Alan listesi alınamadı:', error);
+    }
+  }
+
   useEffect(() => {
     getRecords();
     getAreas();
+    getAvailableFields();
   }, []);
+
+  const handleFieldSelect = (field) => {
+    setSelectedField(field);
+    setFieldValue("");
+  };
+
+  const handleAddValue = async () => {
+    setIsAddingDetailLoading(true);
+    if (!selectedField || !fieldValue) {
+      toast({
+        title: "Hata",
+        description: "Lütfen tüm alanları doldurun",
+        variant: "destructive",
+      });
+      setIsAddingDetailLoading(false);
+      return;
+    }
+
+    try {
+      const field = {
+        field_id: selectedField.id,
+        fieldValue: selectedField.field_type === 'boolean' ? fieldValue === 'true' : fieldValue
+      };
+
+      await recordsService.addValueToRecord(selectedPatient.id, field);
+
+      toast({
+        title: "Başarılı",
+        description: "Değer başarıyla eklendi",
+      });
+
+      // Değerleri sıfırla
+      setSelectedField(null);
+      setFieldValue("");
+      setIsAddingDetailLoading(false);
+      
+      // Kayıt detaylarını yenile
+      const updatedRecord = await recordsService.getRecord(selectedPatient.id);
+      setDetailFields(updatedRecord.values || []);
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Değer eklenirken bir hata oluştu",
+        variant: "destructive",
+      });
+      setIsAddingDetailLoading(false);
+    }
+  };
+
+  const handleUpdateValue = async (valueId) => {
+    if (!editingValue?.value) return;
+    setIsUpdateValueInRecordLoading(true);
+    try {
+      await recordsService.updateValueInRecord(selectedPatient.id, valueId, editingValue.value);
+      // Kayıt detaylarını yenile
+      const updatedRecord = await recordsService.getRecord(selectedPatient.id);
+      setDetailFields(updatedRecord.values || []);
+      setEditingValue(null);
+      setIsUpdateValueInRecordLoading(false);
+      getRecords();
+    } catch (error) {
+      console.error('Değer güncellenemedi:', error);
+      setIsUpdateValueInRecordLoading(false);
+    }
+  };
+
+  const handleDeleteValue = async (valueId) => {
+    setIsDeleteValueInRecordLoading(true);
+    try {
+      await recordsService.deleteValueInRecord(selectedPatient.id, valueId);
+      // Kayıt detaylarını yenile
+      const updatedRecord = await recordsService.getRecord(selectedPatient.id);
+      setDetailFields(updatedRecord.values || []);
+      setIsDeleteValueInRecordLoading(false);
+    } catch (error) {
+      console.error('Değer silinemedi:', error);
+      setIsDeleteValueInRecordLoading(false);
+    }
+  };
+
+  const handleDetailsClick = async (row) => {
+    setSelectedPatient(row);
+    setShowDetailsDialog(true);
+    
+    try {
+      const recordDetails = await recordsService.getRecord(row.id);
+      setDetailFields(recordDetails.values || []);
+    } catch (error) {
+      console.error('Kayıt detayları alınamadı:', error);
+    }
+  };
 
   // Filtreleme fonksiyonu
   const filteredData = data.filter((item) =>
@@ -268,14 +314,6 @@ export default function PatientList() {
     setShowDeleteDialog(true);
   };
 
-  const handleDetailsClick = (row) => {
-    console.log(row);
-    
-    setSelectedPatient(row);
-    setShowDetailsDialog(true);   
-    console.log(selectedPatient);
-  };
-
   const handleEditConfirm = async () => {
     setIsEditLoading(true);
     try {
@@ -306,26 +344,6 @@ export default function PatientList() {
     } catch (error) {
       console.error('Silme işlemi başarısız:', error);
       setIsDeleteLoading(false);
-    }
-  };
-
-  const handleDetailsConfirm = async () => {
-    setIsDetailsLoading(true);
-    try {
-      // detailFields'i API'nin beklediği formata dönüştür
-      const formattedData = {
-        fields: detailFields
-      };
-
-      await recordsService.addFieldsToRecord(selectedPatient.id, formattedData);
-      setSelectedPatient(null);
-      setDetailFields([]); // Formu temizle
-      setIsDetailsLoading(false);
-      setShowDetailsDialog(false);
-      getRecords();
-    } catch (error) {
-      console.error('Detaylar kaydedilemiyor:', error);
-      setIsDetailsLoading(false);
     }
   };
 
@@ -540,7 +558,7 @@ export default function PatientList() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-3xl w-[95vw]">
           <DialogHeader>
             <DialogTitle>Hasta Düzenle</DialogTitle>
             <DialogDescription>
@@ -593,137 +611,168 @@ export default function PatientList() {
 
       {/* Record Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="max-w-[600px]">
+        <DialogContent className="sm:max-w-3xl w-[95vw]">
           <DialogHeader>
             <DialogTitle>Kayıt Detayları</DialogTitle>
             <DialogDescription>
-              Kayıt için detay ekleyebilir veya mevcut detayları görüntüleyebilirsiniz.
+              {selectedPatient?.name} isimli kaydın detayları
             </DialogDescription>
           </DialogHeader>
-          
-          {/* Mevcut Detaylar */}
-          {
-            <div className="border rounded-lg p-4 mb-4">
-              <h4 className="text-sm font-medium mb-3">Mevcut Detaylar</h4>
-              {/* Mevcut Detayları listele */}
-              {
-                // selectedPatient?.fields.map((field, index) => (
-                //   <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                //   <div>
-                //     <span className="font-medium">{field.field_name}: </span>
-                //     <span>{field.value}</span>
-                //     <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
-                //   </div>
-                // </div>
-                // ))
-              }
-              {/* Eklenen Detaylar */}
-              {/*detailFields.map((field, index) => (
-                <div key={index} className="flex items-center justify-between mb-2 bg-gray-50 p-2 rounded">
-                  <div>
-                    <span className="font-medium">{field.field_name}: </span>
-                    <span>{field.value}</span>
-                    <span className="text-gray-500 text-sm ml-2">({field.field_type})</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                    onClick={() => handleRemoveDetail(index)}
-                  >
-                    Sil
-                  </Button>
-                </div>
-              ))*/}
-            </div>
-          }
 
-          {/* Yeni Detay Ekleme Formu */}
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Detay Adı</Label>
-              <Input
-                className="col-span-3"
-                value={newDetailName}
-                onChange={(e) => setNewDetailName(e.target.value)}
-                placeholder="Detay adını giriniz"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Detay Türü</Label>
-              <Select
-                value={newDetailType}
-                onValueChange={setNewDetailType}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Detay türünü seçiniz" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="text">Yazı</SelectItem>
-                  <SelectItem value="integer">Sayı</SelectItem>
-                  <SelectItem value="boolean">Evet/Hayır</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Mevcut Detaylar */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Mevcut Detaylar</h4>
+              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
+                {detailFields.map((detail, index) => (
+                  <div key={index} className="mb-4 p-4 border rounded-lg">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                      <h3 className="font-semibold text-base">{detail.field_name}</h3>
+                      <div className="flex gap-2 mt-2 sm:mt-0">
+                        {editingValue?.id === detail.id ? (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleUpdateValue(detail.id)}
+                              disabled={isUpdateValueInRecordLoading}
+                            >
+                              {isUpdateValueInRecordLoading ? 'Kaydediliyor...' : 'Kaydet'}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingValue(null)}
+                            >
+                              İptal
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setEditingValue(detail)}
+                            >
+                              Güncelle
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteValue(detail.id)}
+                              disabled={isDeleteValueInRecordLoading}
+                            >
+                              {isDeleteValueInRecordLoading ? 'Siliniyor...' : 'Sil'}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded mb-2">
+                      {editingValue?.id === detail.id ? (
+                        detail.field_type === 'boolean' ? (
+                          <Select
+                            //defaultValue={editingValue.value.toString()}
+                            value={editingValue.value === "true" ? 'true' : 'false'}
+                            onValueChange={(value) => {
+                              console.log('Selected value:', value);
+                              setEditingValue({
+                                ...editingValue,
+                                value: value.toString() 
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue>
+                                {editingValue.value ==="true" ? 'Evet' : 'Hayır'}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">Evet</SelectItem>
+                              <SelectItem value="false">Hayır</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : detail.field_type === 'integer' ? (
+                          <Input
+                            type="number"
+                            value={editingValue.value}
+                            onChange={(e) => setEditingValue({...editingValue, value: parseInt(e.target.value)})}
+                          />
+                        ) : (
+                          <Input
+                            type="text"
+                            value={editingValue.value}
+                            onChange={(e) => setEditingValue({...editingValue, value: e.target.value})}
+                          />
+                        )
+                      ) : (
+                        <p className="text-sm">
+                          {detail.field_type === 'boolean' 
+                            ? (detail.value === "true" ? 'Evet' : 'Hayır')
+                            : detail.value
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 text-sm text-gray-500 mb-2">
+                      <span>Oluşturulma: {new Date(detail.created_at).toLocaleString()}</span>
+                      <span className="hidden sm:inline">•</span>
+                      <span>Oluşturan: {detail.created_by}</span>
+                    </div>
+                    
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Seçilen türe göre değer inputu */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Değer</Label>
-              {newDetailType === "boolean" ? (
-                <Select
-                  value={newDetailValue}
-                  onValueChange={setNewDetailValue}
-                  className="col-span-3"
-                >
+            {/* Yeni Detay Ekleme */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Yeni Detay Ekle</h4>
+              <div className="space-y-2">
+                <Select onValueChange={(value) => handleFieldSelect(availableFields.find(f => f.id === value))}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Değer seçiniz" />
+                    <SelectValue placeholder="Alan seçin" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="true">Evet</SelectItem>
-                    <SelectItem value="false">Hayır</SelectItem>
+                    {availableFields.map((field) => (
+                      <SelectItem key={field.id} value={field.id}>
+                        {field.field_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-              ) : newDetailType === "integer" ? (
-                <Input
-                  type="number"
-                  className="col-span-3"
-                  value={newDetailValue}
-                  onChange={(e) => setNewDetailValue(e.target.value)}
-                  placeholder="Sayısal değer giriniz"
-                />
-              ) : (
-                <Input
-                  className="col-span-3"
-                  value={newDetailValue}
-                  onChange={(e) => setNewDetailValue(e.target.value)}
-                  placeholder="Değer giriniz"
-                />
-              )}
+
+                {selectedField && (
+                  <div className="space-y-2">
+                    <Label>Değer</Label>
+                    {selectedField.field_type === 'boolean' ? (
+                      <Select
+                        value={fieldValue}
+                        onValueChange={setFieldValue}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seçiniz" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Evet</SelectItem>
+                          <SelectItem value="false">Hayır</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        type={selectedField.field_type === 'integer' ? 'number' : 'text'}
+                        value={fieldValue}
+                        onChange={(e) => setFieldValue(e.target.value)}
+                      />
+                    )}
+                    <Button onClick={handleAddValue} disabled={isAddingDetailLoading}>
+                      {isAddingDetailLoading ? 'Ekleniyor...' : 'Ekle'}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-
-            <Button
-              type="button"
-              onClick={handleAddDetail}
-              className="ml-auto"
-            >
-              Detay Ekle
-            </Button>
           </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowDetailsDialog(false);
-              setDetailFields([]);
-              setNewDetailName("");
-              setNewDetailType("");
-              setNewDetailValue("");
-            }}>
-              İptal
-            </Button>
-            <Button onClick={handleDetailsConfirm} disabled={isDetailsLoading}>
-              {isDetailsLoading ? 'Kaydediliyor...' : 'Kaydet'}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

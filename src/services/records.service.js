@@ -80,7 +80,7 @@ class RecordsService {
             
             const data = {
                 name: name,
-                //region: region
+                region: region
             };
             
             const response = await apiService.put(
@@ -279,6 +279,100 @@ class RecordsService {
             
             const response = await apiService.delete(
                 ENDPOINTS.DELETE_FIELD(id),
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Kayıt silme hatası:', error);
+            throw error;
+        }
+    }
+
+    async getRecord(recordId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const response = await apiService.get(
+                ENDPOINTS.GET_A_RECORD(recordId),
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Kayıt getirme hatası:', error);
+            throw error;
+        }
+    }
+
+    async addValueToRecord(recordId, field) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const data = {
+                field_id: field.field_id,
+                value: field.fieldValue
+            };
+            
+            const response = await apiService.post(
+                ENDPOINTS.ADD_VALUE_TO_RECORD(recordId),
+                data,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Kayıt oluşturma hatası:', error);
+            throw error;
+        }
+    }
+
+    async updateValueInRecord(recordId, fieldId, value) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const data = {
+                value: value
+            };
+            
+            const response = await apiService.put(
+                ENDPOINTS.UPDATE_VALUE(recordId, fieldId),
+                data,
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Kayıt güncelleme hatası:', error);
+            throw error;
+        }
+    }
+
+    async deleteValueInRecord(recordId, valueId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            
+            const response = await apiService.delete(
+                ENDPOINTS.DELETE_VALUE(recordId, valueId),
                 headers
             );
             

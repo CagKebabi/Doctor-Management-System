@@ -40,6 +40,10 @@ export const ENDPOINTS = {
   GET_FIELDS: '/records/fields/list/',
   UPDATE_FIELD: (id) => `/records/fields/${id}/update/`,
   DELETE_FIELD: (id) => `/records/fields/${id}/delete/`,
+  GET_A_RECORD: (id) => `/records/${id}/`,
+  ADD_VALUE_TO_RECORD: (id) => `/records/${id}/values/`,
+  UPDATE_VALUE: (recordId, fieldId) => `/records/${recordId}/values/${fieldId}/update/`,
+  DELETE_VALUE: (recordId, valueId) => `/records/${recordId}/values/${valueId}/delete/`,
 };
 
 // API istekleri için varsayılan ayarlar
