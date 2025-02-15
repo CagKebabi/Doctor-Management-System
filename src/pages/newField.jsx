@@ -50,8 +50,8 @@ export default function NewField() {
 
   // Form validation schema
   const formSchema = z.object({
-    fieldName: z.string().min(2, {
-      message: "Alan adı en az 2 karakter olmalıdır.",
+    fieldName: z.string().min(3, {
+      message: "Kayıt detayı başlığı en az 3 karakter olmalıdır.",
     }),
     fieldType: z.enum(["boolean", "text", "integer"], {
       errorMap: (issue, ctx) => ({ message: 'Lütfen geçerli bir rol seçiniz' })

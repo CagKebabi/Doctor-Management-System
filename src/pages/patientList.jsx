@@ -64,7 +64,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/hooks/use-toast";
 
 const columns = [
   {
@@ -111,8 +110,6 @@ export default function PatientList() {
   const [selectedField, setSelectedField] = useState(null);
   const [fieldValue, setFieldValue] = useState("");
   const [editingValue, setEditingValue] = useState(null);
-
-  const { toast } = useToast();
 
   const handleAddDetail = () => {
     if (!newDetailName || !newDetailType || !newDetailValue) return;
@@ -182,11 +179,6 @@ export default function PatientList() {
   const handleAddValue = async () => {
     setIsAddingDetailLoading(true);
     if (!selectedField || !fieldValue) {
-      toast({
-        title: "Hata",
-        description: "Lütfen tüm alanları doldurun",
-        variant: "destructive",
-      });
       setIsAddingDetailLoading(false);
       return;
     }
@@ -199,11 +191,6 @@ export default function PatientList() {
 
       await recordsService.addValueToRecord(selectedPatient.id, field);
 
-      toast({
-        title: "Başarılı",
-        description: "Değer başarıyla eklendi",
-      });
-
       // Değerleri sıfırla
       setSelectedField(null);
       setFieldValue("");
@@ -213,11 +200,6 @@ export default function PatientList() {
       const updatedRecord = await recordsService.getRecord(selectedPatient.id);
       setDetailFields(updatedRecord.values || []);
     } catch (error) {
-      toast({
-        title: "Hata",
-        description: "Değer eklenirken bir hata oluştu",
-        variant: "destructive",
-      });
       setIsAddingDetailLoading(false);
     }
   };
