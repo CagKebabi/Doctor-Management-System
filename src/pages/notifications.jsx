@@ -39,7 +39,7 @@ export default function NotificationsPage() {
     try {
       const response = await notificationService.getNotifications();
       if (response && Array.isArray(response)) {
-        setNotifications(response)      
+        setNotifications(response.reverse())      
         console.log('Bildirimler:', notifications);
       }
       return [];

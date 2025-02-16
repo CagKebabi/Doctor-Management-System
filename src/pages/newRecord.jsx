@@ -256,7 +256,7 @@ export default function NewRecord() {
           <DialogHeader>
             <DialogTitle>Kayıt Detayları</DialogTitle>
             <DialogDescription>
-              {selectedPatient?.name} isimli kaydın detayları
+              <span className="font-bold">{selectedPatient?.name}</span> isimli kaydın detayları
             </DialogDescription>
           </DialogHeader>
 
@@ -356,9 +356,9 @@ export default function NewRecord() {
                       )}
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 text-sm text-gray-500 mb-2">
-                      <span>Oluşturulma: {new Date(detail.created_at).toLocaleString()}</span>
+                      <span><span className="font-medium">Oluşturulma:</span> {new Date(detail.created_at).toLocaleString()}</span>
                       <span className="hidden sm:inline">•</span>
-                      <span>Oluşturan: {detail.created_by}</span>
+                      <span><span className="font-medium">Oluşturan:</span> {detail.created_by}</span>
                     </div>
                     
                   </div>
