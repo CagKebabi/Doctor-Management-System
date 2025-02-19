@@ -54,7 +54,7 @@ export default function NewNotification() {
     text: z.string().min(10, {
       message: "Duyuru metni en az 10 karakter olmalıdır.",
     }),
-    targetRole: z.enum(["admin", "doctor"], {
+    targetRole: z.enum(["all","admin", "doctor"], {
       errorMap: (issue, ctx) => ({ message: 'Lütfen geçerli bir rol seçiniz' }),
     }),
     region: z.string({
@@ -171,6 +171,9 @@ export default function NewNotification() {
                       {
                         userRole === 'superadmin' && (
                           <>
+                          <SelectItem key="all" value="all">
+                            Tümü
+                          </SelectItem>
                           <SelectItem key="admin" value="admin">
                             Admin
                           </SelectItem>

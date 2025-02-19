@@ -133,6 +133,52 @@ export class AreaService {
             throw error;
         }
     }
+    async removeAdmin(areaId, userId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            
+            const response = await apiService.post(
+                ENDPOINTS.REMOVE_ADMIN(areaId),
+                {
+                    user_id: userId
+                },
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölgeye admin kaldırma hatası:', error);
+            throw error;
+        }
+    }
+    async removeDoctor(areaId, userId) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            
+            const response = await apiService.post  (
+                ENDPOINTS.REMOVE_DOCTOR(areaId),
+                {
+                    user_id: userId
+                },
+                headers
+            );
+            
+            return response;
+        } catch (error) {
+            console.error('Bölgeye doktor kaldırma hatası:', error);
+            throw error;
+        }
+    }
 }
 
 export const areaService = new AreaService();

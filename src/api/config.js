@@ -22,6 +22,8 @@ export const ENDPOINTS = {
   DELETE_AREA: (id) => `/regions/${id}/delete/`,
   ASSIGN_ADMIN: (id) => `/regions/${id}/assign-admin/`,
   ASSIGN_DOCTOR: (id) => `/regions/${id}/assign-doctor/`,
+  REMOVE_ADMIN: (id) => `/regions/${id}/remove-admin/`,
+  REMOVE_DOCTOR: (id) => `/regions/${id}/remove-doctor/`,
   // Popup endpoints
   CREATE_POPUP: '/popups/',
   GET_POPUPS: '/popups/',

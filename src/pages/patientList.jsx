@@ -111,6 +111,8 @@ export default function PatientList() {
   const [fieldValue, setFieldValue] = useState("");
   const [editingValue, setEditingValue] = useState(null);
 
+  const [fieldValues, setFieldValues] = useState({});
+
   const handleAddDetail = () => {
     if (!newDetailName || !newDetailType || !newDetailValue) return;
 
@@ -176,30 +178,31 @@ export default function PatientList() {
     setFieldValue("");
   };
 
-  const handleAddValue = async () => {
+  const handleFieldValueChange = (field, value) => {
+    setFieldValues(prev => ({
+      ...prev,
+      [field.id]: {
+        field_id: field.id,
+        value: field.field_type === 'boolean' ? value : value.toString()
+      }
+    }));
+  };
+
+  const handleAddAllValues = async () => {
     setIsAddingDetailLoading(true);
-    if (!selectedField || !fieldValue) {
-      setIsAddingDetailLoading(false);
-      return;
-    }
-
     try {
-      const field = {
-        field_id: selectedField.id,
-        fieldValue: selectedField.field_type === 'boolean' ? fieldValue === 'true' : fieldValue
-      };
+      const fieldsToAdd = Object.values(fieldValues);
+      if (fieldsToAdd.length === 0) return;
 
-      await recordsService.addValueToRecord(selectedPatient.id, field);
+      await recordsService.addValueToRecord(selectedPatient.id, fieldsToAdd);
 
-      // Değerleri sıfırla
-      setSelectedField(null);
-      setFieldValue("");
-      setIsAddingDetailLoading(false);
-      
-      // Kayıt detaylarını yenile
+      // Reset values and refresh details
+      setFieldValues({});
       const updatedRecord = await recordsService.getRecord(selectedPatient.id);
       setDetailFields(updatedRecord.values || []);
     } catch (error) {
+      console.error('Değerler eklenemedi:', error);
+    } finally {
       setIsAddingDetailLoading(false);
     }
   };
@@ -601,7 +604,50 @@ export default function PatientList() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
+          <div className="flex gap-4 py-4">
+            {/* Yeni Detay Ekleme */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Yeni Detay Ekle</h4>
+              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
+                {availableFields.map((field) => (
+                  <div key={field.id} className="mb-4 p-1 border rounded-lg">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                      <h3 className="font-semibold text-base">{field.field_name}</h3>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded mb-2">
+                      {field.field_type === 'boolean' ? (
+                        <Select
+                          value={fieldValues[field.id]?.value || ""}
+                          onValueChange={(value) => handleFieldValueChange(field, value)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Seçiniz" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Evet</SelectItem>
+                            <SelectItem value="false">Hayır</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          type={field.field_type === 'integer' ? 'number' : 'text'}
+                          value={fieldValues[field.id]?.value || ""}
+                          onChange={(e) => handleFieldValueChange(field, e.target.value)}
+                          placeholder="Değer girin"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button 
+                onClick={handleAddAllValues} 
+                disabled={isAddingDetailLoading || Object.keys(fieldValues).length === 0}
+                className="w-full"
+              >
+                {isAddingDetailLoading ? 'Ekleniyor...' : 'Kaydet'}
+              </Button>
+            </div>
             {/* Mevcut Detaylar */}
             <div className="space-y-4">
               <h4 className="font-medium">Mevcut Detaylar</h4>
@@ -704,54 +750,6 @@ export default function PatientList() {
                     
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Yeni Detay Ekleme */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Yeni Detay Ekle</h4>
-              <div className="space-y-2">
-                <Select onValueChange={(value) => handleFieldSelect(availableFields.find(f => f.id === value))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Alan seçin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableFields.map((field) => (
-                      <SelectItem key={field.id} value={field.id}>
-                        {field.field_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {selectedField && (
-                  <div className="space-y-2">
-                    <Label>Değer</Label>
-                    {selectedField.field_type === 'boolean' ? (
-                      <Select
-                        value={fieldValue}
-                        onValueChange={setFieldValue}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seçiniz" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">Evet</SelectItem>
-                          <SelectItem value="false">Hayır</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Input
-                        type={selectedField.field_type === 'integer' ? 'number' : 'text'}
-                        value={fieldValue}
-                        onChange={(e) => setFieldValue(e.target.value)}
-                      />
-                    )}
-                    <Button onClick={handleAddValue} disabled={isAddingDetailLoading}>
-                      {isAddingDetailLoading ? 'Ekleniyor...' : 'Ekle'}
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </div>

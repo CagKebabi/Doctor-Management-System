@@ -309,7 +309,7 @@ class RecordsService {
         }
     }
 
-    async addValueToRecord(recordId, field) {
+    async addValueToRecord(recordId, fields) {
         try {
             const token = localStorage.getItem('token');
             
@@ -319,8 +319,10 @@ class RecordsService {
             };
             
             const data = {
-                field_id: field.field_id,
-                value: field.fieldValue
+                fields: fields.map(field => ({
+                    field_id: field.field_id,
+                    value: field.value
+                }))
             };
             
             const response = await apiService.post(
@@ -335,6 +337,33 @@ class RecordsService {
             throw error;
         }
     }
+
+    // async addValueToRecord(recordId, field) {
+    //     try {
+    //         const token = localStorage.getItem('token');
+            
+    //         const headers = {
+    //             'Content-Type': 'application/json',
+    //             'Authorization': `Bearer ${token}`
+    //         };
+            
+    //         const data = {
+    //             field_id: field.field_id,
+    //             value: field.fieldValue
+    //         };
+            
+    //         const response = await apiService.post(
+    //             ENDPOINTS.ADD_VALUE_TO_RECORD(recordId),
+    //             data,
+    //             headers
+    //         );
+            
+    //         return response;
+    //     } catch (error) {
+    //         console.error('Kayıt oluşturma hatası:', error);
+    //         throw error;
+    //     }
+    // }
 
     async updateValueInRecord(recordId, fieldId, value) {
         try {

@@ -43,6 +43,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const areaData = [
   {
@@ -82,13 +83,20 @@ const AreaList = () => {
   const [isDeleteFormLoading, setIsDeleteFormLoading] = useState(false)
   const [isAssignAdminFormLoading, setIsAssignAdminFormLoading] = useState(false)
   const [isAssignDoctorFormLoading, setIsAssignDoctorFormLoading] = useState(false)
+  const [isRemovingUser, setIsRemovingUser] = useState(false);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAssignAdminDialogOpen, setIsAssignAdminDialogOpen] = useState(false);
   const [isAssignDoctorDialogOpen, setIsAssignDoctorDialogOpen] = useState(false);
+  const [showAdminsDialog, setShowAdminsDialog] = useState(false);
+  const [showDoctorsDialog, setShowDoctorsDialog] = useState(false);
+  const [showRemoveAdminDialog, setShowRemoveAdminDialog] = useState(false);
+  const [showRemoveDoctorDialog, setShowRemoveDoctorDialog] = useState(false);
 
   const [selectedArea, setSelectedArea] = useState(null);
+  const [selectedAreaForList, setSelectedAreaForList] = useState(null);
+  const [selectedUserToRemove, setSelectedUserToRemove] = useState(null);
   const [editForm, setEditForm] = useState({
       name: "",
       description: "",
@@ -250,6 +258,38 @@ const AreaList = () => {
     }
   };
 
+  const handleRemoveAdmin = async () => {
+    setIsRemovingUser(true);
+    try {
+      await areaService.removeAdmin(selectedAreaForList.id, selectedUserToRemove.id);
+      setShowRemoveAdminDialog(false);
+      setShowAdminsDialog(false);
+      
+      // Refresh area list
+      await getAreas();
+    } catch (error) {
+      console.error('Admin kaldırma hatası:', error);
+    } finally {
+      setIsRemovingUser(false);
+    }
+  };
+
+  const handleRemoveDoctor = async () => {
+    setIsRemovingUser(true);
+    try {
+      await areaService.removeDoctor(selectedAreaForList.id, selectedUserToRemove.id);
+      setShowRemoveDoctorDialog(false);
+      setShowDoctorsDialog(false);
+      
+      // Refresh area list
+      await getAreas();
+    } catch (error) {
+      console.error('Doktor kaldırma hatası:', error);
+    } finally {
+      setIsRemovingUser(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -371,21 +411,51 @@ const AreaList = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                  <p className="text-sm">
+                    <p className="text-sm flex items-center justify-between">
+                      <span>
+                        <span className="font-semibold">Admin Sayısı:</span>{" "}
+                        {area.admins?.length}
+                      </span>
+                      {area.admins?.length > 0 && (
+                        <Button 
+                          className="h-auto w-auto"
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAreaForList(area);
+                            setShowAdminsDialog(true);
+                          }}
+                        >
+                          Listele
+                        </Button>
+                      )}
+                    </p>
+                    <p className="text-sm flex items-center justify-between">
+                      <span>
+                        <span className="font-semibold">Doktor Sayısı:</span>{" "}
+                        {area.doctors?.length}
+                      </span>
+                      {area.doctors?.length > 0 && (
+                        <Button  
+                          className="h-auto w-auto"
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAreaForList(area);
+                            setShowDoctorsDialog(true);
+                          }}
+                        >
+                          Listele
+                        </Button>
+                      )}
+                    </p>
+                    <p className="text-sm">
                       <span className="font-semibold">Oluşturulma Tarihi:</span>{" "}
                       {new Date(area.created_at).toLocaleString()}
                     </p>
                     <p className="text-sm">
                       <span className="font-semibold">Oluşturan Kişi:</span>{" "}
                       {area.created_by}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-semibold">Admin Sayısı:</span>{" "}
-                      {area.admins?.length}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-semibold">Doktor Sayısı:</span>{" "}
-                      {area.doctors?.length}
                     </p>
                     <p className="text-sm">
                       <span className="font-semibold">Son Güncelleme:</span>{" "}
@@ -636,6 +706,120 @@ const AreaList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Admins List Dialog */}
+      <Dialog open={showAdminsDialog} onOpenChange={setShowAdminsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedAreaForList?.name} - Admin Listesi</DialogTitle>
+            <DialogDescription>
+              Bu bölgedeki adminlerin listesi
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[400px] overflow-y-auto">
+            {selectedAreaForList?.admins.map((admin, index) => (
+              <div key={admin.id} className="py-2 border-b last:border-0 flex items-center justify-between">
+                <p className="text-sm">{admin.email}</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-auto text-red-600 hover:text-red-700"
+                  onClick={() => {
+                    setSelectedUserToRemove(admin);
+                    setShowRemoveAdminDialog(true);
+                  }}
+                >
+                  Kaldır
+                </Button>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowAdminsDialog(false)}>
+              Kapat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Doctors List Dialog */}
+      <Dialog open={showDoctorsDialog} onOpenChange={setShowDoctorsDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedAreaForList?.name} - Doktor Listesi</DialogTitle>
+            <DialogDescription>
+              Bu bölgedeki doktorların listesi
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[400px] overflow-y-auto">
+            {selectedAreaForList?.doctors.map((doctor, index) => (
+              <div key={doctor.id} className="py-2 border-b last:border-0 flex items-center justify-between">
+                <p className="text-sm">{doctor.email}</p>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-auto text-red-600 hover:text-red-700"
+                  onClick={() => {
+                    setSelectedUserToRemove(doctor);
+                    setShowRemoveDoctorDialog(true);
+                  }}
+                >
+                  Kaldır
+                </Button>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowDoctorsDialog(false)}>
+              Kapat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Admin Alert Dialog */}
+      <AlertDialog open={showRemoveAdminDialog} onOpenChange={setShowRemoveAdminDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Admin Kaldırma Onayı</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold">{selectedUserToRemove?.email}</span> adlı admini <span className="font-semibold">{selectedAreaForList?.name}</span> bölgesinden kaldırmak istediğinizden emin misiniz?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowRemoveAdminDialog(false)}>İptal</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleRemoveAdmin}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isRemovingUser}
+            >
+              {isRemovingUser ? "Kaldırılıyor..." : "Kaldır"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Remove Doctor Alert Dialog */}
+      <AlertDialog open={showRemoveDoctorDialog} onOpenChange={setShowRemoveDoctorDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Doktor Kaldırma Onayı</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold">{selectedUserToRemove?.email}</span> adlı doktoru <span className="font-semibold">{selectedAreaForList?.name}</span> bölgesinden kaldırmak istediğinizden emin misiniz?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowRemoveDoctorDialog(false)}>İptal</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleRemoveDoctor}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isRemovingUser}
+            >
+              {isRemovingUser ? "Kaldırılıyor..." : "Kaldır"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
