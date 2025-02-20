@@ -2,18 +2,12 @@ import { ENDPOINTS } from "@/api/config";
 import { apiService } from "./api.service";
 
 export class AreaService {
-    async createNewArea(name, description) {
+    async createNewArea(data) {
         try {
             const token = localStorage.getItem('token');
             
             const headers = {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            };
-
-            const data = {
-                name: name,
-                description: description
             };
             
             const response = await apiService.post(

@@ -2,7 +2,7 @@ import { ENDPOINTS } from "@/api/config";
 import { apiService } from "./api.service";
 
 export class NotificationService {
-    async createNewNotification(content, role, region) {
+    async createNewNotification(data) {
         try {
             const token = localStorage.getItem('token');
             
@@ -11,11 +11,11 @@ export class NotificationService {
                 'Authorization': `Bearer ${token}`
             };
 
-            const data = {
-                content: content,
-                role: role,
-                region: region
-            };
+            // const data = {
+            //     content: content,
+            //     role: role,
+            //     region: region
+            // };
             
             const response = await apiService.post(
                 ENDPOINTS.CREATE_NOTIFICATION,

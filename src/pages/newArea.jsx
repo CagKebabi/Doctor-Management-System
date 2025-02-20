@@ -25,6 +25,13 @@ const formSchema = z.object({
   description: z.string().min(2, {
     message: "Bölge açıklaması en az 2 karakter olmalıdır.",
   }),
+  image: z.instanceof(FileList)
+    .refine((files) => files.length > 0, "Resim seçilmesi zorunludur.")
+    .refine((files) => files[0].size <= 5000000, "Resim boyutu 5MB'dan küçük olmalıdır.")
+    .refine(
+      (files) => ["image/jpeg", "image/png", "image/jpg"].includes(files[0].type),
+      "Sadece .jpg, .jpeg ve .png formatları desteklenmektedir."
+    ),
 });
 
 export default function NewArea() {
@@ -35,8 +42,9 @@ export default function NewArea() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-        name: "",
-        description: "",
+      name: "",
+      description: "",
+      image: undefined,
     },
   });
 
@@ -44,11 +52,13 @@ export default function NewArea() {
   async function onSubmit(values) {
     setIsLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("description", values.description);
+      formData.append("image", values.image[0]);
+
       console.log('Form değerleri:', values);
-      const response = await areaService.createNewArea(
-        values.name,
-        values.description
-      );
+      const response = await areaService.createNewArea(formData);
       console.log('Bölge oluşturuldu:', response);
       navigate("/area-list");
     } catch (error) {
@@ -91,11 +101,34 @@ export default function NewArea() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bölge Açıklaması</FormLabel>
+                  <FormLabel>Bölge Açıklaması</FormLabel>
                   <FormControl>
-                    <Input placeholder="Bölge Açıklaması" {...field} />
+                    <Input placeholder="Bölge Açıklaması" {...field} />
                   </FormControl>
-                  <FormDescription>Bölgenin açıklaması</FormDescription>
+                  <FormDescription>Bölgenin açıklaması</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field: { onChange, ...field } }) => (
+                <FormItem>
+                  <FormLabel>Resim</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => onChange(e.target.files)}
+                      {...field}
+                      value={field.value?.fileName}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Bölge için bir resim seçin (JPG, JPEG veya PNG)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

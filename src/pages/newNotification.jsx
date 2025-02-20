@@ -51,15 +51,15 @@ export default function NewNotification() {
 
   // Form doğrulama şeması
   const formSchema = z.object({
-    text: z.string().min(10, {
+    content: z.string().min(10, {
       message: "Duyuru metni en az 10 karakter olmalıdır.",
     }),
-    targetRole: z.enum(["all","admin", "doctor"], {
+    role: z.enum(["all","admin", "doctor"], {
       errorMap: (issue, ctx) => ({ message: 'Lütfen geçerli bir rol seçiniz' }),
     }),
     region: z.string({
-      required_error: "Lütfen bir bölge seçiniz",
-    }).refine((value) => areas.some(area => area.id === value), {
+    //   required_error: "Lütfen bir bölge seçiniz",
+    // }).refine((value) => areas.some(area => area.id === value), {
       message: "Lütfen geçerli bir bölge seçiniz",
     })
   });
@@ -81,8 +81,8 @@ export default function NewNotification() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text: "",
-      targetRole: "",
+      content: "",
+      role: "",
       region: "",
     },
   });
@@ -93,14 +93,19 @@ export default function NewNotification() {
     try {
       console.log('Form değerleri:', values);
       const response = await notificationService.createNewNotification(
-        values.text,
-        values.targetRole,
-        values.region
+        // values.text,
+        // values.targetRole,
+        // values.region
+        values
       );
       console.log('Duyuru oluşturuldu:', response);
+      console.log(values);
+      
       navigate("/notifications");
     } catch (error) {
       console.error("Duyuru oluşturma hatası:", error);
+      console.log(values);
+      
       alert(error.message);
     } finally {
       setIsLoading(false);
@@ -121,7 +126,7 @@ export default function NewNotification() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="text"
+              name="content"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Duyuru Metni</FormLabel>
@@ -143,7 +148,7 @@ export default function NewNotification() {
 
             <FormField
               control={form.control}
-              name="targetRole"
+              name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hedef Rol</FormLabel>
