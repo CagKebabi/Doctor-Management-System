@@ -411,6 +411,9 @@ const AreaList = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
+                    <div>
+                      <img src={area.image} alt="" />
+                    </div>
                     <p className="text-sm flex items-center justify-between">
                       <span>
                         <span className="font-semibold">Admin Sayısı:</span>{" "}

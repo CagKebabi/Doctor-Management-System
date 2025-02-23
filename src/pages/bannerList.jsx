@@ -37,6 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { API_BASE_URL } from "@/api/config";
 
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
@@ -192,9 +193,9 @@ export default function BannersPage() {
         {({ registerChild }) => (
           <div ref={registerChild} style={updatedStyle}>
             <Card className="h-full">
-              <CardHeader className="relative">
+              <CardHeader className="relative p-2">
                 <img
-                  src={banner.image}
+                  src={`${API_BASE_URL}${banner.image}`}
                   alt={banner.title}
                   className="w-full h-48 object-cover rounded-t-lg"
                   onLoad={() => {

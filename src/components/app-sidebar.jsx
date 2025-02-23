@@ -150,60 +150,6 @@ const userSidebar = {
   ],
 };
 
-// This is sample data.
-// const data = {
-//   navMain: [
-//     {
-//       title: "OLUŞTUR",
-//       url: "#",
-//       items: [
-//         {
-//           title: "Yeni Kullanıcı",
-//           url: "/new-user",
-//         },
-//         {
-//           title: "Yeni Kayıt",
-//           url: "/new-patient",
-//         },
-//         {
-//           title: "Yeni Bölge",
-//           url: "/new-area",
-//         },
-//         {
-//           title: "Yeni Duyuru",
-//           url: "/new-notification",
-//         },
-//         {
-//           title: "Yeni Banner",
-//           url: "/new-banner",
-//         },
-//       ],
-//     },
-//     {
-//       title: "LİSTELE",
-//       url: "#",
-//       items: [
-//         {
-//           title: "Kullanıcı Listesi",
-//           url: "/user-list",
-//         },
-//         {
-//           title: "Hasta Kayıt Listesi",
-//           url: "/patient-list",
-//         },
-//         {
-//           title: "Bölge Listesi",
-//           url: "/area-list",
-//         },
-//         {
-//           title: "Banner Listesi",
-//           url: "/banner-list",
-//         }
-//       ],
-//     },
-//   ],
-// };
-
 export function AppSidebar({ ...props }) {
   const [userEmail, setUserEmail] = useState("");
   const [formData, setFormData] = useState({
@@ -248,6 +194,18 @@ export function AppSidebar({ ...props }) {
     authService.logout();
     navigate('/login');
   };
+
+  const handleNavigate = (url) => {
+    navigate(url);
+    // Close mobile sidebar when a link is clicked
+    if (window.innerWidth <= 768) {  // Mobile breakpoint
+      const sidebarButton = document.querySelector('[data-sidebar="rail"]');
+      if (sidebarButton) {
+        sidebarButton.click();
+      }
+    }
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -282,7 +240,7 @@ export function AppSidebar({ ...props }) {
               <SidebarMenu>
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                    <SidebarMenuButton asChild isActive={item.isActive} onClick={() => handleNavigate(item.url)}>
                       <Link to={item.url}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
