@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Page />,
+        element: <PatientList />,
       },
       {
         path: "new-user",

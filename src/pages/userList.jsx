@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { TableStatistic } from "@/components/table-statistic";
+import { UserTableStatistic } from "@/components/user-table-statistic";
 import { useEffect, useState } from "react";
 import { userService } from "../services/user.service";
 //BU KISIM
@@ -187,7 +187,7 @@ export default function UserList() {
   };
   return (
     <>
-      <TableStatistic />
+      <UserTableStatistic data={data} />
       {/* <DataTable
         columns={columns}
         data={data}

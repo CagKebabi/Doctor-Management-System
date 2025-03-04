@@ -8,120 +8,56 @@ import {
 } from "@/components/ui/card";
 
 export function TableStatistic({ data }) {
-  // Toplam kayıt sayısı
-  const totalRecords = data?.length || 0;
+  // Toplam hasta sayısı
+  const totalPatients = data?.length || 0;
 
-  // Aktif kayıt sayısı (örnek olarak status === "active" olanlar)
-  const activeRecords =
-    data?.filter((item) => item.status === "active")?.length || 0;
+  // Bölgelere göre hasta dağılımı
+  const patientsByRegion = data?.reduce((acc, patient) => {
+    const region = patient.region_name || "Belirsiz";
+    acc[region] = (acc[region] || 0) + 1;
+    return acc;
+  }, {}) || {};
 
-  // Son eklenen kayıt tarihi
-  const lastRecord = data?.length
-    ? new Date(data[data.length - 1].createdAt).toLocaleDateString("tr-TR")
-    : "-";
+  // En çok hasta olan bölge
+  const topRegion = Object.entries(patientsByRegion).sort((a, b) => b[1] - a[1])[0] || ["Belirsiz", 0];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Card className="bg-[#EFFFFF]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Toplam Kayıt</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
+          <CardTitle className="text-sm font-medium">Toplam Hasta</CardTitle>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalRecords}</div>
+          <div className="text-2xl font-bold">{totalPatients}</div>
           <p className="text-xs text-muted-foreground">
-            Sistemdeki toplam kayıt sayısı
+            Sistemdeki toplam hasta sayısı
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-[#FEF3F3]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Aktif Kayıtlar</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
+          <CardTitle className="text-sm font-medium">Bölge Sayısı</CardTitle>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{activeRecords}</div>
+          <div className="text-2xl font-bold">{Object.keys(patientsByRegion).length}</div>
           <p className="text-xs text-muted-foreground">
-            Aktif durumdaki kayıtların sayısı
+            Hasta kaydı olan bölge sayısı
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-[#F3ECFE]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Aktiflik Oranı</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
+          <CardTitle className="text-sm font-medium">En Yoğun Bölge</CardTitle>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {totalRecords
-              ? Math.round((activeRecords / totalRecords) * 100)
-              : 0}
-            %
-          </div>
+          <div className="text-2xl font-bold">{topRegion[1]}</div>
           <p className="text-xs text-muted-foreground">
-            Aktif kayıtların toplama oranı
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Son Kayıt</CardTitle>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
-          >
-            <rect width="20" height="14" x="2" y="5" rx="2" />
-            <path d="M2 10h20" />
-          </svg>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{lastRecord}</div>
-          <p className="text-xs text-muted-foreground">
-            Son eklenen kaydın tarihi
+            {topRegion[0]} bölgesindeki hasta sayısı
           </p>
         </CardContent>
       </Card>

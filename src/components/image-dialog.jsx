@@ -37,7 +37,7 @@ export function ImageDialog({ open, onOpenChange }) {
         <DialogHeader>
           <DialogTitle>Hoşgeldiniz!</DialogTitle>
           <DialogDescription>
-            Doktor yönetim sistemine hoş geldiniz.
+          Hasta Takip Sistemine hoş geldiniz.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">

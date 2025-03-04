@@ -121,7 +121,9 @@ export default function NewRecord() {
       );
       console.log('Kayıt oluşturuldu:', response);
       setSelectedPatient(response); // Oluşturulan kaydı selectedPatient'a ata
-      setShowDetailsDialog(true); // Detay diyaloğunu göster
+      //setShowDetailsDialog(true); // Detay diyaloğunu göster
+      document.getElementById('recordDetails').style.display = 'block';
+      document.getElementById('new-record').style.display = 'none';
     } catch (error) {
       console.error("Kayıt oluşturma hatası:", error);
       alert(error.message);
@@ -192,7 +194,8 @@ export default function NewRecord() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <>
+    <div className="max-w-2xl mx-auto p-6" id="new-record" >
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium">Yeni Kayıt Ekle</h3>
@@ -435,7 +438,7 @@ export default function NewRecord() {
               <h4 className="font-medium">Yeni Detay Ekle</h4>
               <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                 {availableFields.map((field) => (
-                  <div key={field.id} className="mb-4 p-1 border rounded-lg">
+                  <div key={field.id} className="flex gap-2 mb-4 p-1 rounded-lg justify-between">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
                       <h3 className="font-semibold text-base">{field.field_name}</h3>
                     </div>
@@ -581,5 +584,163 @@ export default function NewRecord() {
         </DialogContent>
       </Dialog>
     </div>
+
+    <div id="recordDetails" style={{display: 'none', position: 'relative'}}>
+      <button className="close-btn" id="close-record-details"
+      onClick={() => {document.getElementById('recordDetails').style.display = 'none';document.getElementById('new-record').style.display = 'block';window.location.reload();}}
+      style={{position: 'absolute', top: '10px', right: '10px'}}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6z"/></svg>
+      </button>
+      <span className="font-bold">{selectedPatient?.name}</span> isimli kaydın detayları
+      <div className="flex gap-4 py-4 justify-center">
+              {/* Yeni Detay Ekleme */}
+              <div className="space-y-4 ">
+                <h4 className="font-bold">Yeni Detay Ekle</h4>
+                <div className="space-y-4 pr-2">
+                  {availableFields.map((field) => (
+                    <div key={field.id} className="flex gap-2 mb-4 p-1 rounded-lg justify-between">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                        <h3 className="font-semibold text-base">{field.field_name}</h3>
+                      </div>
+                      <div className="bg-gray-50  rounded mb-2">
+                        {field.field_type === 'boolean' ? (
+                          <Select
+                            value={fieldValues[field.id]?.value || ""}
+                            onValueChange={(value) => handleFieldValueChange(field, value)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Seçiniz" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">Evet</SelectItem>
+                              <SelectItem value="false">Hayır</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input
+                            type={field.field_type === 'integer' ? 'number' : 'text'}
+                            value={fieldValues[field.id]?.value || ""}
+                            onChange={(e) => handleFieldValueChange(field, e.target.value)}
+                            placeholder="Değer girin"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  onClick={handleAddAllValues} 
+                  disabled={isAddingDetailLoading || Object.keys(fieldValues).length === 0}
+                  className="w-full"
+                >
+                  {isAddingDetailLoading ? 'Ekleniyor...' : 'Kaydet'}
+                </Button>
+              </div>
+              {/* Mevcut Detaylar */}
+              {/* <div className="space-y-4 w-[50%]">
+                <h4 className="font-medium">Mevcut Detaylar</h4>
+                <div className="space-y-4 max-h-[70dvh] overflow-y-auto pr-2">
+                  {detailFields.map((detail, index) => (
+                    <div key={index} className="mb-4 p-4 border rounded-lg">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                        <h3 className="font-semibold text-base">{detail.field_name}</h3>
+                        <div className="flex gap-2 mt-2 sm:mt-0">
+                          {editingValue?.id === detail.id ? (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleUpdateValue(detail.id)}
+                                disabled={isUpdateValueInRecordLoading}
+                              >
+                                {isUpdateValueInRecordLoading ? 'Kaydediliyor...' : 'Kaydet'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingValue(null)}
+                              >
+                                İptal
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setEditingValue(detail)}
+                              >
+                                Güncelle
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteValue(detail.id)}
+                                disabled={isDeleteValueInRecordLoading}
+                              >
+                                {isDeleteValueInRecordLoading ? 'Siliniyor...' : 'Sil'}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="bg-gray-50 p-2 rounded mb-2">
+                        {editingValue?.id === detail.id ? (
+                          detail.field_type === 'boolean' ? (
+                            <Select
+                              value={editingValue.value === "true" ? 'true' : 'false'}
+                              onValueChange={(value) => {
+                                console.log('Selected value:', value);
+                                setEditingValue({
+                                  ...editingValue,
+                                  value: value.toString() 
+                                });
+                              }}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue>
+                                  {editingValue.value ==="true" ? 'Evet' : 'Hayır'}
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">Evet</SelectItem>
+                                <SelectItem value="false">Hayır</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : detail.field_type === 'integer' ? (
+                            <Input
+                              type="number"
+                              value={editingValue.value}
+                              onChange={(e) => setEditingValue({...editingValue, value: parseInt(e.target.value)})}
+                            />
+                          ) : (
+                            <Input
+                              type="text"
+                              value={editingValue.value}
+                              onChange={(e) => setEditingValue({...editingValue, value: e.target.value})}
+                            />
+                          )
+                        ) : (
+                          <p className="text-sm">
+                            {detail.field_type === 'boolean' 
+                              ? (detail.value === "true" ? 'Evet' : 'Hayır')
+                              : detail.value
+                            }
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 text-sm text-gray-500 mb-2">
+                        <span><span className="font-medium">Oluşturulma:</span> {new Date(detail.created_at).toLocaleString()}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span><span className="font-medium">Oluşturan:</span> {detail.created_by}</span>
+                      </div>
+                      
+                    </div>
+                  ))}
+                </div>
+              </div> */}
+      </div>
+    </div>
+</>
   );
 }
